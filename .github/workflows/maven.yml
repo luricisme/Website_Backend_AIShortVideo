@@ -19,10 +19,14 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Run Unit Tests
+        run: mvn test
+
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Build & push Docker image
+      - name: Build & push Docker Image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: devopshcmus/website-backend-ai-short-video-editor
@@ -31,8 +35,4 @@ jobs:
           dockerfile: Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-# 01. Login to Docker hub
-# 02. Build a Docker image
-# 03. Push that image to Docker hub
 
