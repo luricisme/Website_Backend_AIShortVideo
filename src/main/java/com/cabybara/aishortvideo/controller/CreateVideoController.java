@@ -1,0 +1,37 @@
+package com.cabybara.aishortvideo.controller;
+
+import com.cabybara.aishortvideo.dto.request.create_video.CollectDataRequestDTO;
+import com.cabybara.aishortvideo.dto.response.ResponseData;
+import com.cabybara.aishortvideo.dto.response.ResponseError;
+import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
+import com.cabybara.aishortvideo.service.CollectDataService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/create-video")
+@Validated
+@Slf4j
+@Tag(name = "Create Video Controller")
+@RequiredArgsConstructor
+public class CreateVideoController {
+    private final CollectDataService collectDataService;
+    private static final String ERROR_MESSAGE = "errorMessage={}";
+
+    @Operation(method = "POST", summary = "Collect data from sources", description = "Collect data from sources (Wikipedia, Pubmed or ChatGPT)")
+    @PostMapping(value = "collect-data")
+    public ResponseData<CollectDataResponseDTO> collectData(@RequestBody CollectDataRequestDTO request) {
+        log.info("Collect data from {} with query {}", request.getSource(), request.getQuery());
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Collect data", collectDataService.collectData(request));
+        } catch(Exception e){
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), "Collect data fail");
+        }
+    }
+}

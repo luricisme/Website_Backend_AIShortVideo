@@ -15,3 +15,9 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+api:
+  wikipedia:
+    url: https://{lang}.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&explaintext&titles={query}
+  pubmed:
+    url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={query}&retmode=json
