@@ -6,6 +6,8 @@ import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDT
 import com.cabybara.aishortvideo.service.CollectDataService;
 
 import com.cabybara.aishortvideo.service.ai.AIGateway;
+import com.cabybara.aishortvideo.utils.DataSource;
+import com.cabybara.aishortvideo.utils.Language;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,24 +45,24 @@ public class CollectDataServiceImpl implements CollectDataService {
 
     @Override
     public CollectDataResponseDTO collectData(CollectDataRequestDTO request) {
-        String source = request.getSource();
+        DataSource source = request.getSource();
         String query = request.getQuery();
-        String lang = request.getLang();
+        Language lang = request.getLang();
 
         String fullText = "";
 
-        if ("wikipedia".equalsIgnoreCase(source)) {
-            fullText = fetchFromWikipedia(query, lang);
-        } else if ("wikidata".equalsIgnoreCase(source)) {
-            fullText = fetchWikidataSummary(query, lang);
-        } else if ("ai".equalsIgnoreCase(source)) {
-            String prompt = collectDataPrompt(query, lang);
+        if ("wikipedia".equalsIgnoreCase(source.getValue())) {
+            fullText = fetchFromWikipedia(query, lang.getValue());
+        } else if ("wikidata".equalsIgnoreCase(source.getValue())) {
+            fullText = fetchWikidataSummary(query, lang.getValue());
+        } else if ("ai".equalsIgnoreCase(source.getValue())) {
+            String prompt = collectDataPrompt(query, lang.name());
             fullText = aiGateway.callChatModelAI(prompt);
         }
 
         return CollectDataResponseDTO.builder()
-                .source(request.getSource())
-                .lang(request.getLang())
+                .source(request.getSource().name())
+                .lang(request.getLang().name())
                 .text(fullText)
                 .build();
     }

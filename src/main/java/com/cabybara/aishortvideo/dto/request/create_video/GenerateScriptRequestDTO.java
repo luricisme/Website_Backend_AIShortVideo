@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.dto.request.create_video;
 
+import com.cabybara.aishortvideo.utils.Language;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +10,5 @@ public class GenerateScriptRequestDTO {
     private String data;
     private String style;
     private String audience;
-    private String lang;
+    private Language lang;
 }

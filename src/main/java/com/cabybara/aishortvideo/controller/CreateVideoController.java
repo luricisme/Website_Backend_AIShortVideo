@@ -28,7 +28,7 @@ public class CreateVideoController {
 
     private static final String ERROR_MESSAGE = "errorMessage={}";
 
-    @Operation(method = "POST", summary = "Collect data from sources", description = "Collect data from sources (Wikipedia, Pubmed or ChatGPT)")
+    @Operation(method = "POST", summary = "Collect data from sources", description = "Collect data from sources (wikipedia, wikidata, ai) in language (vi, en)")
     @PostMapping(value = "collect-data")
     public ResponseData<CollectDataResponseDTO> collectData(@RequestBody CollectDataRequestDTO request) {
         log.info("Collect data from {} with query {}", request.getSource(), request.getQuery());

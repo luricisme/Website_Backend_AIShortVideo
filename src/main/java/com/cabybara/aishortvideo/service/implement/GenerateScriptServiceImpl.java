@@ -54,7 +54,7 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
                 request.getData(),
                 request.getStyle(),
                 request.getAudience(),
-                request.getLang(),
+                request.getLang().name(),
                 MAX_LENGTH
         );
     }
