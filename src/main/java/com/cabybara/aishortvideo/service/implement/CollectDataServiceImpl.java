@@ -31,6 +31,9 @@ public class CollectDataServiceImpl implements CollectDataService {
     @Value("${data.api.wikipedia.url}")
     private String wikipediaUrl;
 
+    @Value("${data.api.wikidata.url}")
+    private String wikidataUrl;
+
     @Autowired
     public CollectDataServiceImpl(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -49,7 +52,7 @@ public class CollectDataServiceImpl implements CollectDataService {
         } else if ("wikidata".equalsIgnoreCase(source)) {
             fullText = fetchWikidataSummary(query, lang);
         } else if ("ai".equalsIgnoreCase(source)) {
-
+            
         }
 
         return CollectDataResponseDTO.builder()
@@ -92,7 +95,7 @@ public class CollectDataServiceImpl implements CollectDataService {
     private String fetchWikidataSummary(String query, String lang) {
         try {
             String apiUrl = String.format(
-                    "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=%s&language=%s&format=json",
+                    wikidataUrl,
                     URLEncoder.encode(query, StandardCharsets.UTF_8),
                     lang);
 

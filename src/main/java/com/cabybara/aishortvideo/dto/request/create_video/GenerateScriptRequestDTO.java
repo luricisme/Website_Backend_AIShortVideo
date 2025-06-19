@@ -10,5 +10,4 @@ public class GenerateScriptRequestDTO {
     private String style;
     private String audience;
     private String lang;
-    private int maxLength;
 }
