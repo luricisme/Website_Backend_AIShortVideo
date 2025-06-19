@@ -16,8 +16,21 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-api:
-  wikipedia:
-    url: https://{lang}.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&explaintext&titles={query}
-  pubmed:
-    url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={query}&retmode=json
+data:
+  api:
+    wikipedia:
+      url: "https://%s.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=%s&format=json"
+
+account:
+  clouflare:
+    apiToken: "C09eZOUy0yMiqrntcSXhOVuycS1OeIamcm1q1vXW"
+    accountId: "8b1d2924f3ee32dfd5e67ef129176db4"
+
+ai:
+  chat:
+    api: "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run"
+
+model:
+  chat: "/@cf/meta/llama-2-7b-chat-int8"
+
+

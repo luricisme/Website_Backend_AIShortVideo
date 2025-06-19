@@ -1,10 +1,13 @@
 package com.cabybara.aishortvideo.controller;
 
 import com.cabybara.aishortvideo.dto.request.create_video.CollectDataRequestDTO;
+import com.cabybara.aishortvideo.dto.request.create_video.GenerateScriptRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
+import com.cabybara.aishortvideo.dto.response.create_video.GenerateScriptResponseDTO;
 import com.cabybara.aishortvideo.service.CollectDataService;
+import com.cabybara.aishortvideo.service.GenerateScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CreateVideoController {
     private final CollectDataService collectDataService;
+    private final GenerateScriptService generateScriptService;
+
     private static final String ERROR_MESSAGE = "errorMessage={}";
 
     @Operation(method = "POST", summary = "Collect data from sources", description = "Collect data from sources (Wikipedia, Pubmed or ChatGPT)")
@@ -32,6 +37,18 @@ public class CreateVideoController {
         } catch(Exception e){
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), "Collect data fail");
+        }
+    }
+
+    @Operation(method = "POST", summary = "Generate script from data", description = "Generate script from data that you have collected")
+    @PostMapping(value = "generate-script")
+    public ResponseData<GenerateScriptResponseDTO> generateScript(@RequestBody GenerateScriptRequestDTO request) {
+        log.info("Generate script with data {}", request.getData());
+        try{
+            return new ResponseData<>(HttpStatus.OK.value(), "Generate script", generateScriptService.generateScript(request));
+        } catch(Exception e){
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), "Generate script fail");
         }
     }
 }
