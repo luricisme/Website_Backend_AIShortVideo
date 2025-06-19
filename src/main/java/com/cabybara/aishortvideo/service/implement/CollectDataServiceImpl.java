@@ -5,6 +5,8 @@ import com.cabybara.aishortvideo.dto.request.create_video.GenerateScriptRequestD
 import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
 import com.cabybara.aishortvideo.service.CollectDataService;
 
+import com.cabybara.aishortvideo.service.ai.AIGateway;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +27,11 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CollectDataServiceImpl implements CollectDataService {
     private final RestTemplate restTemplate;
+
+    private final AIGateway aiGateway;
 
     @Value("${data.api.wikipedia.url}")
     private String wikipediaUrl;
@@ -34,10 +39,7 @@ public class CollectDataServiceImpl implements CollectDataService {
     @Value("${data.api.wikidata.url}")
     private String wikidataUrl;
 
-    @Autowired
-    public CollectDataServiceImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private final int MAX_LENGTH = 50;
 
     @Override
     public CollectDataResponseDTO collectData(CollectDataRequestDTO request) {
@@ -52,7 +54,8 @@ public class CollectDataServiceImpl implements CollectDataService {
         } else if ("wikidata".equalsIgnoreCase(source)) {
             fullText = fetchWikidataSummary(query, lang);
         } else if ("ai".equalsIgnoreCase(source)) {
-            
+            String prompt = collectDataPrompt(query, lang);
+            fullText = aiGateway.callChatModelAI(prompt);
         }
 
         return CollectDataResponseDTO.builder()
@@ -62,7 +65,7 @@ public class CollectDataServiceImpl implements CollectDataService {
                 .build();
     }
 
-    // Call API from wikipedia
+    // Call API from Wikipedia
     private String fetchFromWikipedia(String query, String lang) {
         try {
             String apiUrl = String.format(
@@ -91,7 +94,7 @@ public class CollectDataServiceImpl implements CollectDataService {
         }
     }
 
-    // Call from Wikidata
+    // Call API from Wikidata
     private String fetchWikidataSummary(String query, String lang) {
         try {
             String apiUrl = String.format(
@@ -121,5 +124,18 @@ public class CollectDataServiceImpl implements CollectDataService {
         } catch (Exception e) {
             throw new RuntimeException("Error fetching Wikidata summary: " + e.getMessage(), e);
         }
+    }
+
+    private String collectDataPrompt(String query, String lang) {
+        return String.format(
+                "Hãy tìm kiếm thông tin về '%s' và trả lời bằng ngôn ngữ '%s'. " +
+                        "Yêu cầu:\n" +
+                        "1. Câu trả lời phải chính xác, ngắn gọn, tập trung vào chủ đề.\n" +
+                        "2. Giới hạn tối đa %d từ.\n" +
+                        "3. Nếu không tìm thấy kết quả, hãy thông báo 'Không có dữ liệu phù hợp'.\n" +
+                        "4. Ưu tiên nguồn tin cậy (sách, nghiên cứu, trang web chính thức)." +
+                        "QUAN TRỌNG: Chỉ trả về nội dung câu trả lời không định dạng",
+                query, lang, MAX_LENGTH
+        );
     }
 }
