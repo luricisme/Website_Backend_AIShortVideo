@@ -1,6 +1,21 @@
+server:
+  port: 9090
+
+open:
+  api:
+    title: AI Short Video Editor
+    version: v1.0.0
+    description: AI Short Video Editor API
+    serverUrl: http://localhost:8080
+    serverName: Server Test
+
+springdoc:
+  swagger-ui:
+    path: /api-docs
+
 spring:
   application:
-    name: aishortvideo
+    name: AI-short-video
 
   datasource:
     password: ankiney
