@@ -1,6 +1,21 @@
+server:
+  port: 9090
+
+open:
+  api:
+    title: AI Short Video Editor
+    version: v1.0.0
+    description: AI Short Video Editor API
+    serverUrl: http://localhost:8080
+    serverName: Server Test
+
+springdoc:
+  swagger-ui:
+    path: /api-docs
+
 spring:
   application:
-    name: aishortvideo
+    name: AI-short-video
 
   datasource:
     password: ankiney
@@ -15,3 +30,24 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+data:
+  api:
+    wikipedia:
+      url: "https://%s.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=%s&format=json"
+    wikidata:
+      url: "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=%s&language=%s&uselang=%s&format=json"
+
+account:
+  cloudflare:
+    apiToken: "C09eZOUy0yMiqrntcSXhOVuycS1OeIamcm1q1vXW"
+    accountId: "8b1d2924f3ee32dfd5e67ef129176db4"
+
+ai:
+  chat:
+    api: "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run"
+
+model:
+  chat: "/@cf/meta/llama-2-7b-chat-int8"
+
+
