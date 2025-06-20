@@ -31,8 +31,11 @@ account:
 ai:
   chat:
     api: "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run"
+  image:
+    api: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/run"
 
 model:
   chat: "/@cf/meta/llama-2-7b-chat-int8"
+  image: "/@cf/stabilityai/stable-diffusion-xl-base-1.0"
 
 

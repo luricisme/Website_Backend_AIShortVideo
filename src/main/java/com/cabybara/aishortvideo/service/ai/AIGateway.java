@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,11 +30,19 @@ public class AIGateway {
     @Value("${model.chat}")
     private String modelChat;
 
+    @Value("${ai.image.api}")
+    private String aiImageApi;
+    @Value("${model.image}")
+    private String modelImage;
+    private final int WIDTH_IMAGE = 1080;
+    private final int HEIGHT_IMAGE = 1920;
+
     @Autowired
     public AIGateway(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    // Call chat model
     public String callChatModelAI(String prompt) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(aiChatApi)
@@ -70,8 +79,42 @@ public class AIGateway {
         }
     }
 
-    private int estimateTokens(int wordCount) {
-        return (int) (wordCount * 1.33); // Ước lượng tokens
+    // Call image model
+    public String callImageModelAI(String prompt) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(aiImageApi)
+                .path(modelImage)
+                .buildAndExpand(accountId)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiToken);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("prompt", prompt);
+        body.put("width", WIDTH_IMAGE);
+        body.put("height", HEIGHT_IMAGE);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<byte[]> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    byte[].class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                byte[] imageBytes = response.getBody();
+                return Base64.getEncoder().encodeToString(imageBytes);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error while call API from model image AI: " + e.getMessage(), e);
+        }
     }
 
     private String extractGeneratedText(String apiResponse) throws Exception {
