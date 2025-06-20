@@ -11,25 +11,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
 public class AIGateway {
     private final RestTemplate restTemplate;
 
+    // Account for calling model AI
     @Value("${account.cloudflare.apiToken}")
     private String apiToken;
     @Value("${account.cloudflare.accountId}")
     private String accountId;
 
+    // API chat model
     @Value("${ai.chat.api}")
     private String aiChatApi;
     @Value("${model.chat}")
     private String modelChat;
 
+    // API image model
+    private final Executor executor = Executors.newFixedThreadPool(3);
     @Value("${ai.image.api}")
     private String aiImageApi;
     @Value("${model.image}")
@@ -80,6 +85,24 @@ public class AIGateway {
     }
 
     // Call image model
+    public CompletableFuture<String> callImageModelAIAsync(String prompt) {
+        return CompletableFuture.supplyAsync(() -> callImageModelAI(prompt), executor);
+    }
+
+    public List<String> generateThreeImagesAsync(String prompt) {
+        CompletableFuture<String> image1 = callImageModelAIAsync(prompt);
+        CompletableFuture<String> image2 = callImageModelAIAsync(prompt);
+        CompletableFuture<String> image3 = callImageModelAIAsync(prompt);
+
+        // Chờ cả 3 hoàn thành
+        CompletableFuture<Void> all = CompletableFuture.allOf(image1, image2, image3);
+
+        // Khi xong thì lấy kết quả
+        all.join(); // đợi tất cả
+
+        return Arrays.asList(image1.join(), image2.join(), image3.join());
+    }
+
     public String callImageModelAI(String prompt) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(aiImageApi)

@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
 public class GenerateImageResponseDTO {
     private String modelUsed;
-    private String image;
+    private List<String> images;
 }

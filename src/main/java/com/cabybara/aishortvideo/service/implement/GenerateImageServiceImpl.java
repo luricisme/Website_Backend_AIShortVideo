@@ -9,11 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -27,13 +25,11 @@ public class GenerateImageServiceImpl implements GenerateImageService {
     @Override
     public GenerateImageResponseDTO generateImage(GenerateImageRequestDTO request) {
         String prompt = createImagePrompt(request);
-        String image = aiGateway.callImageModelAI(prompt);
-        String fileName = "D:\\Downloads\\image_" + System.currentTimeMillis() + ".png";
-        saveBase64ImageToFile(image, fileName);
-        saveBase64ImageToFile(image, fileName);
+        List<String> images = aiGateway.generateThreeImagesAsync(prompt);
+        saveBase64ImageToFile(images, "D:\\Downloads\\AI-Images");
         return GenerateImageResponseDTO.builder()
                 .modelUsed(modelImage)
-                .image(image)
+                .images(images)
                 .build();
     }
 
@@ -46,15 +42,21 @@ public class GenerateImageServiceImpl implements GenerateImageService {
     }
 
     // Test
-    public void saveBase64ImageToFile(String base64Image, String outputPath) {
-        try {
-            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-            try (OutputStream stream = new FileOutputStream(outputPath)) {
-                stream.write(imageBytes);
-                System.out.println("Image saved at " + outputPath);
+    public void saveBase64ImageToFile(List<String> base64Images, String outputDir) {
+        for (int i = 0; i < base64Images.size(); i++) {
+            String base64 = base64Images.get(i);
+            try {
+                byte[] imageBytes = Base64.getDecoder().decode(base64);
+                String fileName = String.format("image_%d.png", i + 1);
+                String filePath = outputDir + File.separator + fileName;
+
+                try (OutputStream stream = new FileOutputStream(filePath)) {
+                    stream.write(imageBytes);
+                    System.out.println("Image saved at: " + filePath);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error while saving image " + (i + 1) + ": " + e.getMessage(), e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Lỗi khi lưu ảnh từ base64: " + e.getMessage(), e);
         }
     }
 }
