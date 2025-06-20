@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -46,6 +43,7 @@ public class CollectDataServiceImpl implements CollectDataService {
     @Override
     public CollectDataResponseDTO collectData(CollectDataRequestDTO request) {
         DataSource source = request.getSource();
+//        System.out.println("DATA SOURCE: " + source);
         String query = request.getQuery();
         Language lang = request.getLang();
 
@@ -71,8 +69,8 @@ public class CollectDataServiceImpl implements CollectDataService {
     private String fetchFromWikipedia(String query, String lang) {
         try {
             String apiUrl = String.format(
-                    wikipediaUrl,
-                    lang, URLEncoder.encode(query, StandardCharsets.UTF_8));
+                    wikipediaUrl, lang, query);
+
             // Call API
             ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
@@ -100,10 +98,9 @@ public class CollectDataServiceImpl implements CollectDataService {
     private String fetchWikidataSummary(String query, String lang) {
         try {
             String apiUrl = String.format(
-                    wikidataUrl,
-                    URLEncoder.encode(query, StandardCharsets.UTF_8),
-                    lang);
+                    wikidataUrl, query, lang, lang);
 
+            // Call API
             ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
             if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {

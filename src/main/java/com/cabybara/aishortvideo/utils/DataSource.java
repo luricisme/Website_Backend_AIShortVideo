@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DataSource {
-    Wikipedia("wikipedia"),
-    Wikidata("wikidata"),
+    WIKIPEDIA("wikipedia"),
+    WIKIDATA("wikidata"),
     AI("ai");
 
     private final String value;
@@ -26,6 +26,7 @@ public enum DataSource {
                 return source;
             }
         }
-        throw new IllegalArgumentException("Invalid data source: " + value);
+//        throw new IllegalArgumentException("Invalid data source: " + value);
+        return null;
     }
 }

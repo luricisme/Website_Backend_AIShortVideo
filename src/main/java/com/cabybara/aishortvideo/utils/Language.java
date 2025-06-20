@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Language {
-    Vietnamese("vi"),
-    English("en");
+    VIETNAMESE("vi"),
+    ENGLISH("en");
 
     private final String value;
 
@@ -25,6 +25,7 @@ public enum Language {
                 return lang;
             }
         }
-        throw new IllegalArgumentException("Invalid language: " + value);
+//        throw new IllegalArgumentException("Invalid language: " + value);
+        return null;
     }
 }

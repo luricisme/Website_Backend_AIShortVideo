@@ -21,7 +21,7 @@ data:
     wikipedia:
       url: "https://%s.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=%s&format=json"
     wikidata:
-      url: "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=%s&language=%s&format=json"
+      url: "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=%s&language=%s&uselang=%s&format=json"
 
 account:
   cloudflare:

@@ -10,6 +10,7 @@ import com.cabybara.aishortvideo.service.CollectDataService;
 import com.cabybara.aishortvideo.service.GenerateScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class CreateVideoController {
 
     @Operation(method = "POST", summary = "Collect data from sources", description = "Collect data from sources (wikipedia, wikidata, ai) in language (vi, en)")
     @PostMapping(value = "collect-data")
-    public ResponseData<CollectDataResponseDTO> collectData(@RequestBody CollectDataRequestDTO request) {
+    public ResponseData<CollectDataResponseDTO> collectData(@Valid @RequestBody CollectDataRequestDTO request) {
         log.info("Collect data from {} with query {}", request.getSource(), request.getQuery());
         try{
             return new ResponseData<>(HttpStatus.OK.value(), "Collect data", collectDataService.collectData(request));
@@ -42,7 +43,7 @@ public class CreateVideoController {
 
     @Operation(method = "POST", summary = "Generate script from data", description = "Generate script from data that you have collected")
     @PostMapping(value = "generate-script")
-    public ResponseData<GenerateScriptResponseDTO> generateScript(@RequestBody GenerateScriptRequestDTO request) {
+    public ResponseData<GenerateScriptResponseDTO> generateScript(@Valid @RequestBody GenerateScriptRequestDTO request) {
         log.info("Generate script with data {}", request.getData());
         try{
             return new ResponseData<>(HttpStatus.OK.value(), "Generate script", generateScriptService.generateScript(request));
