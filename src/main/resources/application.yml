@@ -6,7 +6,7 @@ open:
     title: AI Short Video Editor
     version: v1.0.0
     description: AI Short Video Editor API
-    serverUrl: http://localhost:8080
+    serverUrl: http://localhost:9090
     serverName: Server Test
 
 springdoc:
@@ -30,6 +30,13 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    jwtSecret: 251d12e6-b098-4b75-a8c3-7277df474503
+    jwtExpiration: 1800000
+    user:
+      password: ankiney
+      name: ankiney
 
 data:
   api:
