@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.ai;
 
+import com.cabybara.aishortvideo.dto.request.create_video.GenerateAudioRequestDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateScriptResponseDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,13 @@ public class AIGateway {
     private final int WIDTH_IMAGE = 1080;
     private final int HEIGHT_IMAGE = 1920;
 
+    // API audio model
+    @Value("${ai.audio.api}")
+    private String apiAudioApi;
+    @Value("${account.google.apiKey}")
+    private String googleApiKey;
+
+
     @Autowired
     public AIGateway(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -82,6 +90,33 @@ public class AIGateway {
         } catch (Exception e) {
             throw new RuntimeException("Error while call API from model chat AI: " + e.getMessage(), e);
         }
+    }
+
+    private String extractGeneratedText(String apiResponse) throws Exception {
+        try {
+            // 1. Parse JSON response
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(apiResponse);
+
+            // 2. Kiểm tra success flag
+            if (!rootNode.path("success").asBoolean()) {
+                throw new Exception("API request failed: " + rootNode.path("errors").toString());
+            }
+
+            // 3. Lấy nội dung kịch bản
+            String scriptContent = rootNode.path("result")
+                    .path("response")
+                    .asText();
+
+            // 4. Xử lý văn bản - QUAN TRỌNG
+            return cleanTextContent(scriptContent);
+        } catch (Exception e) {
+            throw new Exception("Error processing API response: " + e.getMessage(), e);
+        }
+    }
+
+    private String cleanTextContent(String text) {
+        return text.replace("\\n", " ").replace("\n", " ");
     }
 
     // Call image model
@@ -140,30 +175,55 @@ public class AIGateway {
         }
     }
 
-    private String extractGeneratedText(String apiResponse) throws Exception {
-        try {
-            // 1. Parse JSON response
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(apiResponse);
+    // Call audio model
+    public String callAudioModelAI(GenerateAudioRequestDTO request) {
+        String url = apiAudioApi + googleApiKey;
 
-            // 2. Kiểm tra success flag
-            if (!rootNode.path("success").asBoolean()) {
-                throw new Exception("API request failed: " + rootNode.path("errors").toString());
-            }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // 3. Lấy nội dung kịch bản
-            String scriptContent = rootNode.path("result")
-                    .path("response")
-                    .asText();
+        Map<String, Object> input = new HashMap<>();
+        input.put("text", request.getScript());
 
-            // 4. Xử lý văn bản - QUAN TRỌNG
-            return cleanTextContent(scriptContent);
-        } catch (Exception e) {
-            throw new Exception("Error processing API response: " + e.getMessage(), e);
+        String languageCode = request.getLang().getValue();
+        if (languageCode == "vi") {
+            languageCode += "-VN";
+        } else if (languageCode == "en") {
+            languageCode += "-US";
         }
-    }
 
-    private String cleanTextContent(String text) {
-        return text.replace("\\n", " ").replace("\n", " ");
+        Map<String, Object> voice = new HashMap<>();
+        voice.put("languageCode", languageCode); // ví dụ: "vi-VN"
+        voice.put("name", request.getVoiceType()); // ví dụ: "vi-VN-Wavenet-A"
+
+        Map<String, Object> audioConfig = new HashMap<>();
+        audioConfig.put("audioEncoding", "MP3");
+        audioConfig.put("speakingRate", request.getSpeed()); // ví dụ: 1.0
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("input", input);
+        body.put("voice", voice);
+        body.put("audioConfig", audioConfig);
+
+        HttpEntity<Map<String, Object>> audioRequest = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    audioRequest,
+                    Map.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                String base64Audio = (String) response.getBody().get("audioContent");
+                return base64Audio;
+//                return Base64.getDecoder().decode(base64Audio);
+            } else {
+                throw new RuntimeException("Google TTS API call failed: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error while calling Google TTS API: " + e.getMessage(), e);
+        }
     }
 }

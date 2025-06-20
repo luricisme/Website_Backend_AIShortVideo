@@ -27,12 +27,16 @@ account:
   cloudflare:
     apiToken: "C09eZOUy0yMiqrntcSXhOVuycS1OeIamcm1q1vXW"
     accountId: "8b1d2924f3ee32dfd5e67ef129176db4"
+  google:
+    apiKey: "AIzaSyCCCPqHXPvUoGMXZRcdRoQ1iooj9KU4ZR0"
 
 ai:
   chat:
     api: "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run"
   image:
     api: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/run"
+  audio:
+    api: "https://texttospeech.googleapis.com/v1/text:synthesize?key="
 
 model:
   chat: "/@cf/meta/llama-2-7b-chat-int8"
