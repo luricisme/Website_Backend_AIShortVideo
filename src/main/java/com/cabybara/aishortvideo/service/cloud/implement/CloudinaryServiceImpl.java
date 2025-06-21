@@ -23,20 +23,26 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     private final String OFFICIAL_PHOTO_FOLDER = "Website_AIShortVideoEditor/photos_official";
     private final String OFFICIAL_AUDIO_FOLDER = "Website_AIShortVideoEditor/audio_official";
 
+    private final String VIDEO_FOLDER = "Website_AIShortVideoEditor/videos";
+
     @Override
     public String uploadMultipartFile(MultipartFile file, String fileName, String type) throws IOException {
-        String tempFolder = "";
+        log.info("Upload multipart files");
+        String folder = "";
         if("image".equals(type)){
-            tempFolder = TEMP_PHOTO_FOLDER;
+            folder = TEMP_PHOTO_FOLDER;
         } else if("raw".equals(type)){
-            tempFolder = TEMP_AUDIO_FOLDER;
+            folder = TEMP_AUDIO_FOLDER;
+        } else if("video".equals(type)){
+            folder = VIDEO_FOLDER;
         }
 
         Map<?, ?> result = cloudinary.uploader().upload(
                 file.getBytes(),
                 ObjectUtils.asMap(
-                        "public_id", tempFolder + "/" + fileName,
-                        "resource_type", type
+                        "public_id", folder + "/" + fileName,
+                        "resource_type", type,
+                        "folder", folder
                 )
         );
         return result.get("secure_url").toString();
@@ -44,12 +50,17 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
     @Override
     public String uploadBase64File(String base64, String fileName, String type, String mimeType) throws IOException {
+        //  image/png
+        //  audio/mpeg
+        //	video/mp4
         log.info("Upload base64File");
-        String tempFolder = "";
+        String folder = "";
         if("image".equals(type)){
-            tempFolder = TEMP_PHOTO_FOLDER;
+            folder = TEMP_PHOTO_FOLDER;
         } else if("raw".equals(type)){
-            tempFolder = TEMP_AUDIO_FOLDER;
+            folder = TEMP_AUDIO_FOLDER;
+        } else if("video".equals(type)){
+            folder = VIDEO_FOLDER;
         }
 
 //        System.out.println("FOLDER: " + tempFolder + "/" + fileName);
@@ -59,9 +70,9 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         Map<?, ?> result = cloudinary.uploader().upload(
                 base64,
                 ObjectUtils.asMap(
-                        "public_id", tempFolder + "/" + fileName,
+                        "public_id", folder + "/" + fileName,
                         "resource_type", type,
-                        "folder", tempFolder
+                        "folder", folder
                 )
         );
 //        System.out.println("PUBLIC ID: " + result.get("public_id"));
