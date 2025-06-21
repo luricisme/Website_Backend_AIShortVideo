@@ -4,11 +4,12 @@ import com.cabybara.aishortvideo.utils.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
