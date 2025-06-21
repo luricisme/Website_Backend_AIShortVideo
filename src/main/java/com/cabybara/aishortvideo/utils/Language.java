@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Language {
-    VIETNAMESE("vi"),
-    ENGLISH("en");
+    Vietnamese("vi"),
+    English("en"),
+    Chinese("zh");
 
     private final String value;
 
@@ -13,19 +14,7 @@ public enum Language {
         this.value = value;
     }
 
-    @JsonValue
     public String getValue() {
         return value;
-    }
-
-    @JsonCreator
-    public static Language fromValue(String value) {
-        for (Language lang : Language.values()) {
-            if (lang.value.equalsIgnoreCase(value)) {
-                return lang;
-            }
-        }
-//        throw new IllegalArgumentException("Invalid language: " + value);
-        return null;
     }
 }

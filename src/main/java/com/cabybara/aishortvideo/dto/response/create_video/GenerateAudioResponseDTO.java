@@ -13,5 +13,6 @@ import java.util.List;
 @Builder
 public class GenerateAudioResponseDTO {
     private String modelUsed;
+    private String voiceType;
     private String audio;
 }

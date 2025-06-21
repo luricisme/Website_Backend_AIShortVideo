@@ -18,6 +18,6 @@ public class GenerateScriptRequestDTO {
     @NotBlank
     private String audience;
 
-    @EnumPattern(name = "lang", regexp = "VIETNAMESE|ENGLISH")
+    @EnumPattern(name = "lang", regexp = "Vietnamese|English|Chinese")
     private Language lang;
 }

@@ -35,9 +35,8 @@ public class GenerateImageServiceImpl implements GenerateImageService {
 
     private String createImagePrompt(GenerateImageRequestDTO request) {
         String script = request.getScript().trim();
-        // Gợi ý prompt ngắn gọn
         return String.format(
-                "Create an image about %s", script
+                "Create an image related to the passage: %s", script
         );
     }
 

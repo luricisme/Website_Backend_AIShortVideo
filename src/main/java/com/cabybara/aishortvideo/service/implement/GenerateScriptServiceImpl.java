@@ -27,11 +27,12 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
 
     @Value("${model.chat}")
     private String modelChat;
-    private final int MAX_LENGTH = 100;
+    private final int MAX_LENGTH = 80;
 
 
     @Override
     public GenerateScriptResponseDTO generateScript(GenerateScriptRequestDTO request) {
+        System.out.println("Lang in use: " + request.getLang().name());
         String prompt = createScriptPrompt(request);
         String script = aiGateway.callChatModelAI(prompt);
         return GenerateScriptResponseDTO.builder()
@@ -42,10 +43,10 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
 
     private String createScriptPrompt(GenerateScriptRequestDTO request) {
         return String.format(
-                "Hãy viết một câu chuyện liền mạch về '%s' với các yêu cầu:\n" +
+                "Hãy viết hoặc phát triển một câu chuyện liền mạch dựa vào dữ liệu '%s' với các yêu cầu:\n" +
                         "- Phong cách: %s\n" +
                         "- Đối tượng: %s\n" +
-                        "- Ngôn ngữ: %s\n" +
+                        "- Được viết ở ngôn ngữ: %s\n" +
                         "- Định dạng:\n" +
                         "  + Văn xuôi thuần túy (không phân cảnh, không tiêu đề)\n" +
                         "  + Ngôi kể thứ ba\n" +
