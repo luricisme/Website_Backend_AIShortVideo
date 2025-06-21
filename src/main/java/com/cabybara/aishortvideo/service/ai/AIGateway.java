@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.ai;
 
+import com.cabybara.aishortvideo.dto.request.create_video.GenerateAudioRequestDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateScriptResponseDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,29 +12,50 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
 public class AIGateway {
     private final RestTemplate restTemplate;
 
+    // Account for calling model AI
     @Value("${account.cloudflare.apiToken}")
     private String apiToken;
     @Value("${account.cloudflare.accountId}")
     private String accountId;
 
+    // API chat model
     @Value("${ai.chat.api}")
     private String aiChatApi;
     @Value("${model.chat}")
     private String modelChat;
+
+    // API image model
+    private final Executor executor = Executors.newFixedThreadPool(3);
+    @Value("${ai.image.api}")
+    private String aiImageApi;
+    @Value("${model.image}")
+    private String modelImage;
+    private final int WIDTH_IMAGE = 1080;
+    private final int HEIGHT_IMAGE = 1920;
+
+    // API audio model
+    @Value("${ai.audio.api}")
+    private String apiAudioApi;
+    @Value("${account.google.apiKey}")
+    private String googleApiKey;
+
 
     @Autowired
     public AIGateway(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    // Call chat model
     public String callChatModelAI(String prompt) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(aiChatApi)
@@ -70,10 +92,6 @@ public class AIGateway {
         }
     }
 
-    private int estimateTokens(int wordCount) {
-        return (int) (wordCount * 1.33); // Ước lượng tokens
-    }
-
     private String extractGeneratedText(String apiResponse) throws Exception {
         try {
             // 1. Parse JSON response
@@ -99,5 +117,113 @@ public class AIGateway {
 
     private String cleanTextContent(String text) {
         return text.replace("\\n", " ").replace("\n", " ");
+    }
+
+    // Call image model
+    public CompletableFuture<String> callImageModelAIAsync(String prompt) {
+        return CompletableFuture.supplyAsync(() -> callImageModelAI(prompt), executor);
+    }
+
+    public List<String> generateThreeImagesAsync(String prompt) {
+        CompletableFuture<String> image1 = callImageModelAIAsync(prompt);
+        CompletableFuture<String> image2 = callImageModelAIAsync(prompt);
+        CompletableFuture<String> image3 = callImageModelAIAsync(prompt);
+
+        // Chờ cả 3 hoàn thành
+        CompletableFuture<Void> all = CompletableFuture.allOf(image1, image2, image3);
+
+        // Khi xong thì lấy kết quả
+        all.join(); // đợi tất cả
+
+        return Arrays.asList(image1.join(), image2.join(), image3.join());
+    }
+
+    public String callImageModelAI(String prompt) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(aiImageApi)
+                .path(modelImage)
+                .buildAndExpand(accountId)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiToken);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("prompt", prompt);
+        body.put("width", WIDTH_IMAGE);
+        body.put("height", HEIGHT_IMAGE);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<byte[]> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    byte[].class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                byte[] imageBytes = response.getBody();
+                return Base64.getEncoder().encodeToString(imageBytes);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error while call API from model image AI: " + e.getMessage(), e);
+        }
+    }
+
+    // Call audio model
+    public String callAudioModelAI(GenerateAudioRequestDTO request) {
+        String url = apiAudioApi + googleApiKey;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> input = new HashMap<>();
+        input.put("text", request.getScript());
+
+        String languageCode = request.getLang().getValue();
+        if (languageCode == "vi") {
+            languageCode += "-VN";
+        } else if (languageCode == "en") {
+            languageCode += "-US";
+        }
+
+        Map<String, Object> voice = new HashMap<>();
+        voice.put("languageCode", languageCode); // ví dụ: "vi-VN"
+        voice.put("name", request.getVoiceType()); // ví dụ: "vi-VN-Wavenet-A"
+
+        Map<String, Object> audioConfig = new HashMap<>();
+        audioConfig.put("audioEncoding", "MP3");
+        audioConfig.put("speakingRate", request.getSpeed()); // ví dụ: 1.0
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("input", input);
+        body.put("voice", voice);
+        body.put("audioConfig", audioConfig);
+
+        HttpEntity<Map<String, Object>> audioRequest = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    audioRequest,
+                    Map.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                String base64Audio = (String) response.getBody().get("audioContent");
+                return base64Audio;
+//                return Base64.getDecoder().decode(base64Audio);
+            } else {
+                throw new RuntimeException("Google TTS API call failed: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error while calling Google TTS API: " + e.getMessage(), e);
+        }
     }
 }
