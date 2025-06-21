@@ -32,7 +32,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   security:
-    jwtSecret: 251d12e6-b098-4b75-a8c3-7277df474503
+    jwtSecret: 251d12e6b0984b75a8c37277df474503aKn080104AiShortVideo
     jwtExpiration: 1800000
     user:
       password: ankiney

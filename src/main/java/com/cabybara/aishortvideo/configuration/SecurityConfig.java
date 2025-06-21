@@ -3,11 +3,11 @@ package com.cabybara.aishortvideo.configuration;
 import com.cabybara.aishortvideo.filter.JwtAuthFilter;
 import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
 import com.cabybara.aishortvideo.utils.JwtAuthEntryPoint;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -20,33 +20,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthEntryPoint unauthorizedHandler;
-    private UserDetailsService userDetailsService;
-    private JwtServiceInterface jwtServiceInterface;
 
     public SecurityConfig(JwtAuthEntryPoint unauthorizedHandler) {
         this.unauthorizedHandler = unauthorizedHandler;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception {
-        return builder.getAuthenticationManager();
-    }
-
-    @Bean
-    public JwtAuthFilter jwtAuthFilter() {
+    public JwtAuthFilter jwtAuthFilter(UserDetailsService userDetailsService, JwtServiceInterface jwtServiceInterface) {
         return new JwtAuthFilter(userDetailsService, jwtServiceInterface);
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http.authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
                         .requestMatchers("/swagger-ui/**").permitAll()
@@ -54,7 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
                         .requestMatchers("/api-docs/**").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/auth/register").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .anyRequest().authenticated());
         http.sessionManagement(
                 session ->
@@ -67,10 +57,20 @@ public class SecurityConfig {
                 )
         );
         http.csrf(csrf -> csrf.disable());
-        http.addFilterBefore(jwtAuthFilter(),
+        http.addFilterBefore(jwtAuthFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception {
+        return builder.getAuthenticationManager();
     }
 }

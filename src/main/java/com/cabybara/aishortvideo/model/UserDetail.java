@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.model;
 
+import com.cabybara.aishortvideo.utils.UserRole;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -8,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDetail implements UserDetails {
 
@@ -19,7 +19,10 @@ public class UserDetail implements UserDetails {
     public UserDetail(User user) {
         this.email = user.getEmail(); // Use email as username
         this.password = user.getPassword();
-        this.authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
+        System.out.println("User role from database: " + user.getRole()); // LOG NÀY
+        String roleName = user.getRole() == UserRole.USER ? "USER" : "ADMIN"; // Logic có thể sai
+        System.out.println("Assigned authority: ROLE_" + roleName); // LOG NÀY
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 
     @Override
