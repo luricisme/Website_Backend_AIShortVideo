@@ -1,23 +1,13 @@
-package com.cabybara.aishortvideo.service.implement;
+package com.cabybara.aishortvideo.service.create_video.implement;
 
 import com.cabybara.aishortvideo.dto.request.create_video.GenerateScriptRequestDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateScriptResponseDTO;
-import com.cabybara.aishortvideo.service.GenerateScriptService;
+import com.cabybara.aishortvideo.service.create_video.GenerateScriptService;
 import com.cabybara.aishortvideo.service.ai.AIGateway;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.http.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Slf4j

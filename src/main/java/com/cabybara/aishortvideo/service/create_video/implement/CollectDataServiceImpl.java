@@ -1,16 +1,13 @@
-package com.cabybara.aishortvideo.service.implement;
+package com.cabybara.aishortvideo.service.create_video.implement;
 
 import com.cabybara.aishortvideo.dto.request.create_video.CollectDataRequestDTO;
-import com.cabybara.aishortvideo.dto.request.create_video.GenerateScriptRequestDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
-import com.cabybara.aishortvideo.service.CollectDataService;
+import com.cabybara.aishortvideo.service.create_video.CollectDataService;
 
 import com.cabybara.aishortvideo.service.ai.AIGateway;
-import com.cabybara.aishortvideo.utils.DataSource;
 import com.cabybara.aishortvideo.utils.Language;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

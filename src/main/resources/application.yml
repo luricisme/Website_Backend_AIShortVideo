@@ -42,4 +42,10 @@ model:
   chat: "/@cf/meta/llama-2-7b-chat-int8"
   image: "/@cf/stabilityai/stable-diffusion-xl-base-1.0"
 
+cloud:
+  cloudinary:
+    name: "dykyxn2rc"
+    apiKey: "687762494213714"
+    apiSecret: "7XNB1N8X33I7qsGmCwWV9fUUQy8"
+
 

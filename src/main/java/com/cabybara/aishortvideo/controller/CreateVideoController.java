@@ -10,10 +10,10 @@ import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDT
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateAudioResponseDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateImageResponseDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.GenerateScriptResponseDTO;
-import com.cabybara.aishortvideo.service.CollectDataService;
-import com.cabybara.aishortvideo.service.GenerateAudioService;
-import com.cabybara.aishortvideo.service.GenerateImageService;
-import com.cabybara.aishortvideo.service.GenerateScriptService;
+import com.cabybara.aishortvideo.service.create_video.CollectDataService;
+import com.cabybara.aishortvideo.service.create_video.GenerateAudioService;
+import com.cabybara.aishortvideo.service.create_video.GenerateImageService;
+import com.cabybara.aishortvideo.service.create_video.GenerateScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
