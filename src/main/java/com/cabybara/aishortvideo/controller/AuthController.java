@@ -120,12 +120,12 @@ public class AuthController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    @PostMapping("/login")
     public String userEndpoint(){
         return "Hello, User!";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -138,7 +138,6 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    @GetMapping("/admin")
     public String adminEndpoint(){
         return "Hello, Admin!";
     }
