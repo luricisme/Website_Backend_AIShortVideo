@@ -6,8 +6,13 @@ import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
+import com.cabybara.aishortvideo.exception.ErrorResponse;
 import com.cabybara.aishortvideo.service.implement.JwtServiceImpl;
 import com.cabybara.aishortvideo.service.implement.UserServiceImpl;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,16 +41,41 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Register successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request - Registration failed or invalid input",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "User with this email already exists",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
     public ResponseData<RegisterResponseDTO> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
         RegisterResponseDTO user = userService.addUser(registerRequestDTO);
-        if (user != null) {
-            return new ResponseData<>(HttpStatus.OK, "Register successfully", user);
-        } else {
-            return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), "Failed to register");
-        }
+        return new ResponseData<>(HttpStatus.OK, "Register successfully", user);
     }
 
     @PostMapping("/login")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Login successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid email or password",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
+            )
+    })
     public ResponseData<LoginResponseDTO> authenticateUser(@RequestBody LoginRequestDTO loginRequest) {
         Authentication authentication;
         try {
@@ -78,11 +108,36 @@ public class AuthController {
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Successfully",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))
+        ),
+        @ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - Invalid email or password",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/login")
     public String userEndpoint(){
         return "Hello, User!";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Invalid email or password",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
     @GetMapping("/admin")
     public String adminEndpoint(){
         return "Hello, Admin!";

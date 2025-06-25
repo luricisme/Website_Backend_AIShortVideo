@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
         log.error("=================== handleUserException ===================");
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.CONFLICT.value())
                 .message(e.getMessage())
                 .error("Bad request")
                 .timestamp(new Date(System.currentTimeMillis()))
