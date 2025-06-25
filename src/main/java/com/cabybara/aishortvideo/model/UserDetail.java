@@ -19,9 +19,7 @@ public class UserDetail implements UserDetails {
     public UserDetail(User user) {
         this.email = user.getEmail(); // Use email as username
         this.password = user.getPassword();
-        System.out.println("User role from database: " + user.getRole()); // LOG NÀY
-        String roleName = user.getRole() == UserRole.USER ? "USER" : "ADMIN"; // Logic có thể sai
-        System.out.println("Assigned authority: ROLE_" + roleName); // LOG NÀY
+        String roleName = user.getRole() == UserRole.USER ? "USER" : "ADMIN";
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
     }
 

@@ -33,7 +33,7 @@ spring:
 
   security:
     jwtSecret: 251d12e6b0984b75a8c37277df474503aKn080104AiShortVideo
-    jwtExpiration: 1800000
+    jwtExpiration: 43200000 # 12h
     user:
       password: ankiney
       name: ankiney

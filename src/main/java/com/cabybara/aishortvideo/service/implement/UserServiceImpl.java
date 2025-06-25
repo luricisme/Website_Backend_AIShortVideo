@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.service.implement;
 
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.exception.UserAlreadyExistsException;
 import com.cabybara.aishortvideo.mapper.UserMapper;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
@@ -36,6 +37,13 @@ public class UserServiceImpl implements UserServiceInterface {
     }
 
     public RegisterResponseDTO addUser(RegisterRequestDTO registerRequestDTO) {
+        Optional<User> existedUserOptional = userRepository.findByEmail(registerRequestDTO.getEmail());
+
+        if (existedUserOptional.isPresent()) {
+            User existedUser = existedUserOptional.get();
+            throw new UserAlreadyExistsException("User with email " + existedUser.getEmail() + " already exists.");
+        }
+
         User user = userMapper.toUser(registerRequestDTO);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());

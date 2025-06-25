@@ -1,12 +1,19 @@
 package com.cabybara.aishortvideo.filter;
 
+import com.cabybara.aishortvideo.exception.ErrorResponse;
 import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -38,24 +46,49 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            logger.debug("AuthToken: ", token);
-            email = jwtServiceInterface.extractEmail(token);
-        }
+        try {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                logger.debug("AuthToken: {}", token);
+                email = jwtServiceInterface.extractEmail(token);
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (jwtServiceInterface.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    if (jwtServiceInterface.validateToken(token, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
             }
-        }
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+
+        } catch (ExpiredJwtException ex) {
+            logger.error("JWT expired: {}", ex.getMessage());
+            sendUnauthorizedResponse(response, request.getServletPath(), "JWT token expired");
+        } catch (JwtException | IllegalArgumentException ex) {
+            logger.error("Invalid JWT: {}", ex.getMessage());
+            sendUnauthorizedResponse(response, request.getServletPath(), "Invalid JWT token");
+        }
+    }
+
+    private void sendUnauthorizedResponse(HttpServletResponse response, String path, String message) throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .path(path)
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(message)
+                .error("Unauthorized")
+                .timestamp(new Date())
+                .build();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }

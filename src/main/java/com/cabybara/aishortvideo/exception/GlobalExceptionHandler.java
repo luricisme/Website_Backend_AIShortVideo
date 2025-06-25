@@ -37,4 +37,17 @@ public class GlobalExceptionHandler {
         errorResponse.setMessage(message);
         return errorResponse;
     }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserException(UserAlreadyExistsException e, WebRequest request) {
+        log.error("=================== handleUserException ===================");
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .error("Bad request")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
 }

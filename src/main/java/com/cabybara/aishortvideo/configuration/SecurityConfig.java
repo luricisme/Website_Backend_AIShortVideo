@@ -2,7 +2,7 @@ package com.cabybara.aishortvideo.configuration;
 
 import com.cabybara.aishortvideo.filter.JwtAuthFilter;
 import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
-import com.cabybara.aishortvideo.utils.JwtAuthEntryPoint;
+import com.cabybara.aishortvideo.exception.JwtAuthEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -53,8 +53,7 @@ public class SecurityConfig {
         );
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
         http.headers(headers -> headers
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
-                )
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
         );
         http.csrf(csrf -> csrf.disable());
         http.addFilterBefore(jwtAuthFilter,

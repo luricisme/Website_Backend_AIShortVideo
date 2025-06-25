@@ -52,12 +52,10 @@ public class AuthController {
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (BadCredentialsException exception) {
-        return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Password is incorrect");
-    } catch (UsernameNotFoundException exception) {
-        return new ResponseError<>(HttpStatus.NOT_FOUND.value(), "Username Not Found");
-    } catch (AuthenticationException exception) {
-        return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Authentication failed: " + exception.getMessage());
-    }
+            return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Invalid email or password");
+        } catch (AuthenticationException exception) {
+            return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Authentication failed: " + exception.getMessage());
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
