@@ -106,6 +106,11 @@ public class AuthController {
         return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);
     }
 
+    @PostMapping("/oauth/google")
+    public ResponseData<String> loginWithGoogle() {
+        return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+    }
+
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
     @ApiResponses(value = {

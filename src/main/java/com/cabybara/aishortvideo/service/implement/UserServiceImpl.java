@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserServiceInterface {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
+    @Override
     public RegisterResponseDTO addUser(RegisterRequestDTO registerRequestDTO) {
         Optional<User> existedUserOptional = userRepository.findByEmail(registerRequestDTO.getEmail());
 
