@@ -37,6 +37,10 @@ spring:
     user:
       password: ankiney
       name: ankiney
+  data:
+    redis:
+      host: 88.222.212.40
+      port: 6378
 
 data:
   api:
