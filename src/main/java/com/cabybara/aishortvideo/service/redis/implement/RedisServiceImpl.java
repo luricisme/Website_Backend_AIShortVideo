@@ -1,6 +1,6 @@
-package com.cabybara.aishortvideo.service.implement;
+package com.cabybara.aishortvideo.service.redis.implement;
 
-import com.cabybara.aishortvideo.service.interfaces.RedisService;
+import com.cabybara.aishortvideo.service.redis.RedisService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

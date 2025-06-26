@@ -1,4 +1,4 @@
-package com.cabybara.aishortvideo.service.interfaces;
+package com.cabybara.aishortvideo.service.redis;
 
 public interface RedisService {
     void set(String key, Object value, long timeoutInSeconds);

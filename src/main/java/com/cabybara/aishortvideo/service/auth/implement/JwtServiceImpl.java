@@ -1,6 +1,7 @@
-package com.cabybara.aishortvideo.service.implement;
+package com.cabybara.aishortvideo.service.auth.implement;
 
-import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
+import com.cabybara.aishortvideo.service.auth.JwtService;
+import com.cabybara.aishortvideo.service.redis.implement.RedisServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtServiceImpl implements JwtServiceInterface {
+public class JwtServiceImpl implements JwtService {
 
     @Value("${spring.security.jwtSecret}")
     private String SECRET;
