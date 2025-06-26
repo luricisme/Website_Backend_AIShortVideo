@@ -1,6 +1,21 @@
+server:
+  port: 9090
+
+open:
+  api:
+    title: AI Short Video Editor
+    version: v1.0.0
+    description: AI Short Video Editor API
+    serverUrl: http://localhost:9090
+    serverName: Server Test
+
+springdoc:
+  swagger-ui:
+    path: /api-docs
+
 spring:
   application:
-    name: aishortvideo
+    name: AI-short-video
 
   datasource:
     password: ankiney
@@ -15,6 +30,13 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    jwtSecret: 251d12e6b0984b75a8c37277df474503aKn080104AiShortVideo
+    jwtExpiration: 43200000 # 12h
+    user:
+      password: ankiney
+      name: ankiney
 
 data:
   api:
