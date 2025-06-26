@@ -22,7 +22,11 @@ public class UserServiceImpl implements UserServiceInterface {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            UserMapper userMapper
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
@@ -53,5 +57,4 @@ public class UserServiceImpl implements UserServiceInterface {
 
         return userMapper.toRegisterResponseDTO(user);
     }
-
 }

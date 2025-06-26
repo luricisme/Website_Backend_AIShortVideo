@@ -106,6 +106,31 @@ public class AuthController {
         return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);
     }
 
+    @PostMapping("/logout")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseData.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Invalid token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
+            )
+    })
+    public ResponseData<String> logout(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            long now = System.currentTimeMillis();
+            long expirationTime = jwtService.extractExpiration(token).getTime();
+            long ttl = (expirationTime - now) / 1000;
+            jwtService.backlistToken(token, ttl);
+            return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+        }
+        return new ResponseError(HttpStatus.BAD_REQUEST, "Invalid token");
+    }
+
     @PostMapping("/oauth/google")
     public ResponseData<String> loginWithGoogle() {
         return new ResponseData<>(HttpStatus.OK, "Successfully", null);
