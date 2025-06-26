@@ -13,9 +13,9 @@ public class CollectDataRequestDTO {
     @NotBlank
     private String query;
 
-    @EnumPattern(name = "source", regexp = "WIKIPEDIA|WIKIDATA|AI")
+    @EnumPattern(name = "source", regexp = "Wikipedia|Wikidata|AI")
     private DataSource source;
 
-    @EnumPattern(name = "lang", regexp = "VIETNAMESE|ENGLISH")
+    @EnumPattern(name = "lang", regexp = "Vietnamese|English|Chinese")
     private Language lang;
 }

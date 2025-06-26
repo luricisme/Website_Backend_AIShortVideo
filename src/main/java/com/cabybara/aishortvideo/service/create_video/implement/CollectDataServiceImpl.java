@@ -1,16 +1,13 @@
-package com.cabybara.aishortvideo.service.implement;
+package com.cabybara.aishortvideo.service.create_video.implement;
 
 import com.cabybara.aishortvideo.dto.request.create_video.CollectDataRequestDTO;
-import com.cabybara.aishortvideo.dto.request.create_video.GenerateScriptRequestDTO;
 import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
-import com.cabybara.aishortvideo.service.CollectDataService;
+import com.cabybara.aishortvideo.service.create_video.CollectDataService;
 
 import com.cabybara.aishortvideo.service.ai.AIGateway;
-import com.cabybara.aishortvideo.utils.DataSource;
 import com.cabybara.aishortvideo.utils.Language;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,22 +35,21 @@ public class CollectDataServiceImpl implements CollectDataService {
     @Value("${data.api.wikidata.url}")
     private String wikidataUrl;
 
-    private final int MAX_LENGTH = 50;
+    private final int MAX_LENGTH = 30;
 
     @Override
     public CollectDataResponseDTO collectData(CollectDataRequestDTO request) {
-        DataSource source = request.getSource();
-//        System.out.println("DATA SOURCE: " + source);
+        String source = request.getSource().getValue();
         String query = request.getQuery();
         Language lang = request.getLang();
 
         String fullText = "";
 
-        if ("wikipedia".equalsIgnoreCase(source.getValue())) {
+        if ("wikipedia".equalsIgnoreCase(source)) {
             fullText = fetchFromWikipedia(query, lang.getValue());
-        } else if ("wikidata".equalsIgnoreCase(source.getValue())) {
+        } else if ("wikidata".equalsIgnoreCase(source)) {
             fullText = fetchWikidataSummary(query, lang.getValue());
-        } else if ("ai".equalsIgnoreCase(source.getValue())) {
+        } else if ("ai".equalsIgnoreCase(source)) {
             String prompt = collectDataPrompt(query, lang.name());
             fullText = aiGateway.callChatModelAI(prompt);
         }
@@ -125,16 +121,27 @@ public class CollectDataServiceImpl implements CollectDataService {
         }
     }
 
+//    private String collectDataPrompt(String query, String lang) {
+//        return String.format(
+//                "Trả lời bằng ngôn ngữ '%s' với nội dung ngắn gọn và chính xác về chủ đề: '%s'.\n" +
+//                        "- Tối đa %d từ.\n" +
+//                        "- Chỉ cung cấp thông tin chính xác, không giới thiệu, không đặt câu hỏi ngược lại.\n" +
+//                        "- Nếu không tìm thấy thông tin, trả về đúng câu: 'Không có dữ liệu phù hợp'.\n" +
+//                        "- Ưu tiên thông tin từ nguồn tin cậy (sách, nghiên cứu khoa học, website chính thức).\n" +
+//                        "- QUAN TRỌNG: Chỉ trả về nội dung, không thêm chào hỏi, không giải thích cách tìm.\n",
+//                lang, query, MAX_LENGTH
+//        );
+//    }
+
     private String collectDataPrompt(String query, String lang) {
         return String.format(
-                "Hãy tìm kiếm thông tin về '%s' và trả lời bằng ngôn ngữ '%s'. " +
-                        "Yêu cầu:\n" +
-                        "1. Câu trả lời phải chính xác, ngắn gọn, tập trung vào chủ đề.\n" +
-                        "2. Giới hạn tối đa %d từ.\n" +
-                        "3. Nếu không tìm thấy kết quả, hãy thông báo 'Không có dữ liệu phù hợp'.\n" +
-                        "4. Ưu tiên nguồn tin cậy (sách, nghiên cứu, trang web chính thức)." +
-                        "QUAN TRỌNG: Chỉ trả về nội dung câu trả lời không định dạng",
-                query, lang, MAX_LENGTH
+                "Respond in '%s' with concise and accurate information about the topic: '%s'.\n" +
+                        "- Maximum of %d words.\n" +
+                        "- Provide only factual information. Do not introduce the topic, and do not ask follow-up questions.\n" +
+                        "- If no relevant information is found, return exactly: 'No relevant data found'.\n" +
+                        "- Prioritize trustworthy sources (books, academic research, official websites).\n" +
+                        "- IMPORTANT: Return only the content. Do not include greetings, explanations, or search process.\n",
+                lang, query, MAX_LENGTH
         );
     }
 }

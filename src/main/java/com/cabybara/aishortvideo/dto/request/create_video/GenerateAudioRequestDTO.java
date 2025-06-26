@@ -12,13 +12,15 @@ public class GenerateAudioRequestDTO {
     @NotBlank
     private String script;
 
-    @EnumPattern(name = "lang", regexp = "VIETNAMESE|ENGLISH")
+    @EnumPattern(name = "lang", regexp = "Vietnamese|English|Chinese")
     private Language lang;
     /*
-    vi-VN-Wavenet-A	    Giọng nữ mềm mại
-    vi-VN-Wavenet-B	    Giọng nam chuẩn
-    en-US-Wavenet-F	    Giọng nữ trẻ, rõ ràng
-    en-US-Wavenet-D	    Giọng nam mạnh, phổ biến
+    vi-VN-HoaiMyNeural	    Giọng Bắc, tự nhiên, phù hợp đọc tin tức
+    vi-VN-NamMinhNeural	    Giọng Bắc, trầm ấm
+    en-US-JennyNeural	    Giọng Mỹ phổ thông, đa dụng
+    en-US-DavisNeural	    Giọng trầm, chuyên nghiệp
+    zh-CN-XiaoxiaoNeural	Giọng nữ trẻ trung, có thể đa cảm xúc
+    zh-CN-YunyangNeural	    Giọng phát thanh viên
      */
     @NotBlank
     private String voiceType;

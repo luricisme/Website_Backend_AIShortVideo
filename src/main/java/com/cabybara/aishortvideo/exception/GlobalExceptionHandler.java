@@ -3,6 +3,7 @@ package com.cabybara.aishortvideo.exception;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,11 +15,14 @@ import java.util.Date;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    // Nhìn lỗi mà mình nhận rồi từ đó mới viết custom handle exception ở đây
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    @ExceptionHandler(
+            {
+                    MethodArgumentNotValidException.class,
+                    ConstraintViolationException.class,
+                    HttpMessageNotReadableException.class
+            })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(Exception e, WebRequest request) {
-        log.info("=================== handleValidationException ===================");
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(new Date(System.currentTimeMillis()));
         errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -33,7 +37,11 @@ public class GlobalExceptionHandler {
         } else if (e instanceof ConstraintViolationException) {
             message = message.substring(message.indexOf(" ") + 1);
             errorResponse.setError("Parameter invalid");
+        } else if (e instanceof HttpMessageNotReadableException) {
+            message = "Incorrect value enum. Correct enum values are: " + message.substring(message.indexOf("Enum class:") + 12).trim();
+            errorResponse.setError("Incorrect enum value");
         }
+
         errorResponse.setMessage(message);
         return errorResponse;
     }

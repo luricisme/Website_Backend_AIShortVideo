@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -46,8 +47,8 @@ public class AIGateway {
     // API audio model
     @Value("${ai.audio.api}")
     private String apiAudioApi;
-    @Value("${account.google.apiKey}")
-    private String googleApiKey;
+    @Value("${account.azure.key}")
+    private String azureKey;
 
 
     @Autowired
@@ -177,53 +178,56 @@ public class AIGateway {
 
     // Call audio model
     public String callAudioModelAI(GenerateAudioRequestDTO request) {
-        String url = apiAudioApi + googleApiKey;
+        String url = apiAudioApi;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        MediaType ssmlType = new MediaType("application", "ssml+xml", StandardCharsets.UTF_8);
+        headers.setContentType(ssmlType);
+        headers.set("Ocp-Apim-Subscription-Key", azureKey);
+        headers.set("X-Microsoft-OutputFormat", "audio-16khz-128kbitrate-mono-mp3");
 
-        Map<String, Object> input = new HashMap<>();
-        input.put("text", request.getScript());
-
-        String languageCode = request.getLang().getValue();
-        if (languageCode == "vi") {
-            languageCode += "-VN";
-        } else if (languageCode == "en") {
-            languageCode += "-US";
+        String lang = "";
+        if ("vi".equals(request.getLang().getValue())) {
+            lang = "vi-VN";
+        } else if ("en".equals(request.getLang().getValue())) {
+            lang = "en-US";
         }
+        System.out.println("LANG SPEAK: " + lang);
 
-        Map<String, Object> voice = new HashMap<>();
-        voice.put("languageCode", languageCode); // ví dụ: "vi-VN"
-        voice.put("name", request.getVoiceType()); // ví dụ: "vi-VN-Wavenet-A"
+        String ssml = String.format(
+                "<speak version='1.0' xml:lang='%s'>" +
+                        "<voice name='%s'>" +
+                        "<prosody rate='%s'>" +
+                        "%s" +
+                        "</prosody>" +
+                        "</voice>" +
+                        "</speak>",
+                lang,
+                request.getVoiceType(),
+                request.getSpeed() + "%", // Azure sử dụng % cho speaking rate (0.5 = 50%, 1.0 = 100%, 1.5 = 150%)
+                request.getScript()
+        );
 
-        Map<String, Object> audioConfig = new HashMap<>();
-        audioConfig.put("audioEncoding", "MP3");
-        audioConfig.put("speakingRate", request.getSpeed()); // ví dụ: 1.0
+        System.out.println("SSML: " + ssml);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("input", input);
-        body.put("voice", voice);
-        body.put("audioConfig", audioConfig);
-
-        HttpEntity<Map<String, Object>> audioRequest = new HttpEntity<>(body, headers);
+        HttpEntity<String> audioRequest = new HttpEntity<>(ssml, headers);
 
         try {
-            ResponseEntity<Map> response = restTemplate.exchange(
+            ResponseEntity<byte[]> response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     audioRequest,
-                    Map.class
+                    byte[].class
             );
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                String base64Audio = (String) response.getBody().get("audioContent");
-                return base64Audio;
-//                return Base64.getDecoder().decode(base64Audio);
+                // Trả về audio dưới dạng base64
+                return Base64.getEncoder().encodeToString(response.getBody());
             } else {
-                throw new RuntimeException("Google TTS API call failed: " + response.getStatusCode());
+                throw new RuntimeException("Azure TTS API call failed: " + response.getStatusCode());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error while calling Google TTS API: " + e.getMessage(), e);
+            throw new RuntimeException("Error while calling Azure TTS API: " + e.getMessage(), e);
         }
     }
 }

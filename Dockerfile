@@ -1,5 +1,4 @@
 FROM openjdk:21
-ARG FILE_JAR=target/*.jar
-ADD ${FILE_JAR} website-backend-ai-short-video-editor.jar
-ENTRYPOINT ["java", "-jar", "website-backend-ai-short-video-editor.jar"]
-EXPOSE 8080
+COPY target/aishortvideo-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 9090
