@@ -68,9 +68,10 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "user", key = "#id")
     @Override
     public UserDTO loadUserById(Long id) {
-        Optional<User> user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE);
+        User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
-        return user.map(userMapper::toUserDTO).orElse(null);
+        return userMapper.toUserDTO(user);
     }
 
     @CachePut(value = "users", key = "#id")
