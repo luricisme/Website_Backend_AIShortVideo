@@ -7,6 +7,7 @@ import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
+import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.service.auth.implement.JwtServiceImpl;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -90,18 +91,19 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDetail userDetail = (UserDetail) authentication.getPrincipal();
 
-        String jwt = jwtService.generateToken(userDetails.getUsername());
+        String jwt = jwtService.generateToken(userDetail.getUsername());
 
-        String role = userDetails.getAuthorities().stream()
+        String role = userDetail.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst().orElse("UNDEFINED");
 
         LoginResponseDTO response = LoginResponseDTO.builder()
-                .username(userDetails.getUsername())
+                .username(userDetail.getUsername())
                 .jwt(jwt)
                 .role(role)
+                .id(userDetail.getId())
                 .build();
 
         return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);

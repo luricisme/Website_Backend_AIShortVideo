@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService  {
     RegisterResponseDTO addUser(RegisterRequestDTO registerRequestDTO);
 
-
     UserDTO loadUserById(Long id);
 
     UserDTO updateUser(Long id, UpdateUserDTO updateUserDTO);
