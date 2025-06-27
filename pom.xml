@@ -161,6 +161,5 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>website-backend-ai-short-video-editor</finalName>
 	</build>
 </project>
