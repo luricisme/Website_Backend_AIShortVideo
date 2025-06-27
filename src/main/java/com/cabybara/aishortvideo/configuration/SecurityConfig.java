@@ -1,7 +1,7 @@
 package com.cabybara.aishortvideo.configuration;
 
 import com.cabybara.aishortvideo.filter.JwtAuthFilter;
-import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
+import com.cabybara.aishortvideo.service.auth.JwtService;
 import com.cabybara.aishortvideo.exception.JwtAuthEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +30,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter(UserDetailsService userDetailsService, JwtServiceInterface jwtServiceInterface) {
-        return new JwtAuthFilter(userDetailsService, jwtServiceInterface);
+    public JwtAuthFilter jwtAuthFilter(UserDetailsService userDetailsService, JwtService jwtService) {
+        return new JwtAuthFilter(userDetailsService, jwtService);
     }
 
     @Bean
@@ -45,8 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
-                        .anyRequest().authenticated());
-//                        .anyRequest().permitAll());
+                        .anyRequest().permitAll());
+                        //.anyRequest().authenticated());
         http.sessionManagement(
                 session ->
                         session.sessionCreationPolicy(

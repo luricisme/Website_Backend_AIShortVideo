@@ -7,8 +7,8 @@ import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
-import com.cabybara.aishortvideo.service.implement.JwtServiceImpl;
-import com.cabybara.aishortvideo.service.implement.UserServiceImpl;
+import com.cabybara.aishortvideo.service.auth.implement.JwtServiceImpl;
+import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,6 +105,36 @@ public class AuthController {
         return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);
     }
 
+    @PostMapping("/logout")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseData.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Invalid token",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
+            )
+    })
+    public ResponseData<String> logout(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            long now = System.currentTimeMillis();
+            long expirationTime = jwtService.extractExpiration(token).getTime();
+            long ttl = (expirationTime - now) / 1000;
+            jwtService.backlistToken(token, ttl);
+            return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+        }
+        return new ResponseError(HttpStatus.BAD_REQUEST, "Invalid token");
+    }
+
+    @PostMapping("/oauth/google")
+    public ResponseData<String> loginWithGoogle() {
+        return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+    }
+
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/user")
     @ApiResponses(value = {
@@ -120,12 +149,12 @@ public class AuthController {
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    @PostMapping("/login")
     public String userEndpoint(){
         return "Hello, User!";
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -138,7 +167,6 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    @GetMapping("/admin")
     public String adminEndpoint(){
         return "Hello, Admin!";
     }
