@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.model;
 
 import com.cabybara.aishortvideo.utils.UserRole;
+import com.cabybara.aishortvideo.utils.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,10 @@ public class User {
     @Column(name = "role")
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private UserStatus status = UserStatus.ACTIVE;
+
     private String username;
     private String password;
     private String bio;
@@ -35,8 +40,8 @@ public class User {
     private String youtube;
 
     @Column(name = "created_at")
-    private java.time.LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
-    private java.time.LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

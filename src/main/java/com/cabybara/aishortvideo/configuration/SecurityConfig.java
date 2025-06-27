@@ -45,8 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
-//                        .anyRequest().authenticated());
                         .anyRequest().permitAll());
+                        //.anyRequest().authenticated());
         http.sessionManagement(
                 session ->
                         session.sessionCreationPolicy(
