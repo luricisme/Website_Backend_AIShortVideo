@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @Validated
+@Tag(name = "Auth Apis")
 public class AuthController {
     private final UserServiceImpl userService;
     private final JwtServiceImpl jwtService;
@@ -44,7 +46,7 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Register successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseData.class))
             ),
             @ApiResponse(
                     responseCode = "400",
