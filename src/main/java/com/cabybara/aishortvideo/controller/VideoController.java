@@ -29,4 +29,56 @@ public class VideoController {
         log.info("Get all videos randomly for home page");
         return new ResponseData<>(HttpStatus.OK.value(), "videos", videoService.getAllVideosWithRandom());
     }
+
+    @Operation(method = "POST", summary = "Like video", description = "Like video (One times)")
+    @PostMapping(value = "/like/{videoId}")
+    public ResponseData<Void> likeVideo(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
+        log.info("Like video, videoId={}, userId={}", videoId, userId);
+        try {
+            videoService.likeVideo(videoId, userId);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Like video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Like video fail");
+        }
+    }
+
+    @Operation(method = "DELETE", summary = "Unlike video", description = "Unlike video")
+    @DeleteMapping(value = "/like/{videoId}")
+    public ResponseData<Void> unlikeVideo(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
+        log.info("Unlike video, videoId={}, userId={}", videoId, userId);
+        try {
+            videoService.unlikeVideo(videoId, userId);
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Unlike video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Unlike video fail");
+        }
+    }
+
+    @Operation(method = "POST", summary = "Dislike video", description = "Dislike video (One times)")
+    @PostMapping(value = "/dislike/{videoId}")
+    public ResponseData<Void> dislikeVideo(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
+        log.info("Dislike video, videoId={}, userId={}", videoId, userId);
+        try {
+            videoService.dislikeVideo(videoId, userId);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Dislike video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Dislike video fail");
+        }
+    }
+
+    @Operation(method = "DELETE", summary = "Undislike video", description = "Undislike video")
+    @DeleteMapping(value = "/dislike/{videoId}")
+    public ResponseData<Void> undislikeVideo(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
+        log.info("Undislike video, videoId={}, userId={}", videoId, userId);
+        try {
+            videoService.undislikeVideo(videoId, userId);
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Undislike video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Undislike video fail");
+        }
+    }
 }
