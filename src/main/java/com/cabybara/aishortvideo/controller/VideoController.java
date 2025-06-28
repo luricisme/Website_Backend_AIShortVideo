@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.controller;
 
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
+import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -79,6 +80,18 @@ public class VideoController {
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Undislike video fail");
+        }
+    }
+
+    @Operation(method = "GET", summary = "Check like and dislike button status", description = "Check like and dislike button status ")
+    @GetMapping(value = "/check-like-dislike-status/{videoId}")
+    public ResponseData<CheckLikeStatusResponseDTO> checkLikeStatus(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
+        log.info("Check like and dislike button status, videoId={}, userId={}", videoId, userId);
+        try {
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Check status like and dislike button successfully", videoService.checkLikeStatus(videoId, userId));
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Check status like and dislike button fail");
         }
     }
 }

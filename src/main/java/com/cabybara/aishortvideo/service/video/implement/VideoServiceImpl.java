@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.service.video.implement;
 
 import com.cabybara.aishortvideo.dto.response.PageResponse;
+import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.GetAllVideoResponseDTO;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
@@ -77,18 +78,30 @@ public class VideoServiceImpl implements VideoService {
                 .build());
     }
 
-    @Transactional
     @Override
     public void undislikeVideo(Long videoId, Long userId) {
         DislikedVideoId id = new DislikedVideoId(userId, videoId);
         boolean exists = dislikedVideoRepository.existsById(id);
-        log.info("Record exists before delete: {}", exists);
-
-        log.info("Attempting to delete with ID: userId={}, videoId={}", userId, videoId);
-
+//        log.info("Record exists before delete: {}", exists);
+//        log.info("Attempting to delete with ID: userId={}, videoId={}", userId, videoId);
         dislikedVideoRepository.deleteById(id);
+//        log.info("Record exists after delete: {}", dislikedVideoRepository.existsById(id));
+    }
 
-        log.info("Record exists after delete: {}", dislikedVideoRepository.existsById(id));
+    @Override
+    public CheckLikeStatusResponseDTO checkLikeStatus(Long videoId, Long userId) {
+        boolean liked = likedVideoRepository.existsById(LikedVideoId.builder()
+                .userId(userId)
+                .videoId(videoId)
+                .build());
+        boolean disliked = dislikedVideoRepository.existsById(DislikedVideoId.builder()
+                .userId(userId)
+                .videoId(videoId)
+                .build());
+        return CheckLikeStatusResponseDTO.builder()
+                .liked(liked)
+                .disliked(disliked)
+                .build();
     }
 
     private Video getVideoById(Long videoId) {
