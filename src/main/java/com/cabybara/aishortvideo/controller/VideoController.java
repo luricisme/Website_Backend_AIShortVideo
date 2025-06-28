@@ -1,13 +1,9 @@
 package com.cabybara.aishortvideo.controller;
 
-import com.cabybara.aishortvideo.dto.request.create_video.CollectDataRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
-import com.cabybara.aishortvideo.dto.response.ResponseError;
-import com.cabybara.aishortvideo.dto.response.create_video.CollectDataResponseDTO;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "Home page Controller")
 @RequiredArgsConstructor
-public class HomePageController {
+public class VideoController {
     private final VideoService videoService;
 
     private static final String ERROR_MESSAGE = "errorMessage={}";

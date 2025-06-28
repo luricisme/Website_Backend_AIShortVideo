@@ -17,7 +17,6 @@ public class VideoTag {
 
     // Quan hệ ManyToOne với Video
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     @MapsId("videoId") // ánh xạ videoId trong VideoTagId
     @JoinColumn(name = "id_video")
     private Video video;
