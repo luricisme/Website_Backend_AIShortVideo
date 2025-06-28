@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ public class VideoTag {
 
     // Quan hệ ManyToOne với Video
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @MapsId("videoId") // ánh xạ videoId trong VideoTagId
     @JoinColumn(name = "id_video")
     private Video video;
