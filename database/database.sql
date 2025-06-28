@@ -43,6 +43,7 @@ CREATE TABLE videos (
     audio_url VARCHAR,
     video_url VARCHAR,
     like_cnt INTEGER DEFAULT 0,
+    dislike_cnt INTEGER DEFAULT 0,
     view_cnt INTEGER DEFAULT 0,
     length NUMERIC,
     thumbnail VARCHAR,
