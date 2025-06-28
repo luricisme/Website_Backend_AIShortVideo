@@ -10,12 +10,10 @@ import java.util.List;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
     @Query("""
-                SELECT v, COUNT(c.user.id)
+                SELECT v
                 FROM Video v
-                LEFT JOIN CommentedVideo c ON c.video.id = v.id
                 WHERE v.status = 'PUBLISHED'
-                GROUP BY v
                 ORDER BY function('RANDOM')
             """)
-    List<Object[]> findAllRandom();
+    List<Video> findAllRandom();
 }

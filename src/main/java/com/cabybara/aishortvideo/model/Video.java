@@ -44,6 +44,9 @@ public class Video extends AbstractEntity{
     @Column(name = "dislike_cnt")
     private int dislikeCnt;
 
+    @Column(name = "comment_cnt")
+    private int commentCnt;
+
     @Column(name = "view_cnt")
     private int viewCnt;
 

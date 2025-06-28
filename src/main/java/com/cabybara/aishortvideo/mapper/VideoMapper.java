@@ -13,6 +13,7 @@ import java.util.List;
 public interface VideoMapper {
     @Mapping(target = "status", expression = "java(video.getStatus().name())")
     @Mapping(target = "tags", expression = "java(mapTags(video.getTags()))")
+    @Mapping(target = "commentCnt", source = "commentCnt")
     GetAllVideoResponseDTO toDto(Video video);
 
     default List<VideoTagDTO> mapTags(List<VideoTag> tags) {
