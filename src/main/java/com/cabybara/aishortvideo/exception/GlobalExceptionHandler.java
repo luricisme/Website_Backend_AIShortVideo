@@ -47,14 +47,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleUserException(UserAlreadyExistsException e, WebRequest request) {
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyException(UserAlreadyExistsException e, WebRequest request) {
         log.error("=================== handleUserException ===================");
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.CONFLICT.value())
                 .message(e.getMessage())
-                .error("Bad request")
+                .error("Conflict")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+        log.error("=================== handleUserNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(ex.getMessage())
+                .error("Not Found")
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }

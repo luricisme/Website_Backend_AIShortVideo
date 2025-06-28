@@ -1,7 +1,7 @@
 package com.cabybara.aishortvideo.filter;
 
 import com.cabybara.aishortvideo.exception.ErrorResponse;
-import com.cabybara.aishortvideo.service.interfaces.JwtServiceInterface;
+import com.cabybara.aishortvideo.service.auth.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,13 +27,13 @@ import java.util.Date;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
-    private final JwtServiceInterface jwtServiceInterface;
+    private final JwtService jwtService;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
 
-    public JwtAuthFilter(UserDetailsService userDetailsService, JwtServiceInterface jwtServiceInterface) {
+    public JwtAuthFilter(UserDetailsService userDetailsService, JwtService jwtService) {
         this.userDetailsService = userDetailsService;
-        this.jwtServiceInterface = jwtServiceInterface;
+        this.jwtService = jwtService;
     }
 
 
@@ -50,11 +49,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
                 logger.debug("AuthToken: {}", token);
-                email = jwtServiceInterface.extractEmail(token);
+                email = jwtService.extractEmail(token);
 
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                    if (jwtServiceInterface.validateToken(token, userDetails)) {
+                    if (jwtService.validateToken(token, userDetails) && !jwtService.isTokenBacklisted(token)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
