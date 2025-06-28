@@ -37,6 +37,14 @@ spring:
     user:
       password: ankiney
       name: ankiney
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id:
+            client-secret:
+            redirect-uri:
+
   data:
     redis:
       host: 88.222.212.40
