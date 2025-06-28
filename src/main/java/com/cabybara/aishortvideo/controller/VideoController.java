@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/home-page")
 @Validated
 @Slf4j
-@Tag(name = "Home page Controller")
+@Tag(name = "Video APIs")
 @RequiredArgsConstructor
 public class VideoController {
     private final VideoService videoService;

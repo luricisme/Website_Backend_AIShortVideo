@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/create-video")
 @Validated
 @Slf4j
-@Tag(name = "Create Video Controller")
+@Tag(name = "Create Video APIs")
 @RequiredArgsConstructor
 public class CreateVideoController {
     private final CollectDataService collectDataService;

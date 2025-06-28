@@ -21,6 +21,7 @@ public class GetAllVideoResponseDTO {
     private String videoUrl;
     private int likeCnt;
     private int dislikeCnt;
+    private int commentCnt;
     private int viewCnt;
     private double length;
     private String thumbnail;

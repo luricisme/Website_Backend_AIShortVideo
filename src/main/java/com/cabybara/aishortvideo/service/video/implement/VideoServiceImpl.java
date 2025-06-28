@@ -21,14 +21,21 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public PageResponse<?> getAllVideosWithRandom() {
-        List<Video> videos = videoRepository.findAllRandom();
+        List<Object[]> results = videoRepository.findAllRandom();
 
-        List<GetAllVideoResponseDTO> videoDTOs = videos.stream()
-                .map(videoMapper::toDto)
+        List<GetAllVideoResponseDTO> videoDTOs = results.stream()
+                .map(row -> {
+                    Video video = (Video) row[0];
+                    Long commentCount = (Long) row[1];
+                    int count = commentCount.intValue();
+                    GetAllVideoResponseDTO dto = videoMapper.toDto(video);
+                    dto.setCommentCnt(count);  // Gán riêng vào DTO trả về
+                    return dto;
+                })
                 .toList();
 
         return PageResponse.builder()
-                .totalElements(videos.size())
+                .totalElements(videoDTOs.size())
                 .items(videoDTOs)
                 .build();
     }

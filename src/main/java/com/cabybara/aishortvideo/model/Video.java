@@ -70,4 +70,8 @@ public class Video extends AbstractEntity{
     // Quan hệ OneToMany với VideoImages
     @OneToMany(mappedBy = "video", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VideoImage> images = new ArrayList<>();
+
+    // Quan hệ OneToMany với CommentedVideo
+    @OneToMany(mappedBy = "video", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentedVideo> comments = new ArrayList<>();
 }
