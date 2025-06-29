@@ -10,6 +10,8 @@ import java.util.Date;
 public class GetAllCommentsForVideoResponseDTO {
     private Long id;
 
+    private Long userId;
+
     private String avatar;
 
     private String username;
@@ -18,8 +20,9 @@ public class GetAllCommentsForVideoResponseDTO {
 
     private Date createdAt;
 
-    public GetAllCommentsForVideoResponseDTO(Long id, String avatar, String username, String content, Date createdAt) {
+    public GetAllCommentsForVideoResponseDTO(Long id, Long userId, String avatar, String username, String content, Date createdAt) {
         this.id = id;
+        this.userId = userId;
         this.avatar = avatar;
         this.username = username;
         this.content = content;

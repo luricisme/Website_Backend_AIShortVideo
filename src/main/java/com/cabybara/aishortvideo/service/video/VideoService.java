@@ -26,4 +26,6 @@ public interface VideoService {
     public PageResponse<?> getAllComments(Long videoId);
 
     public void updateComment(Long commentId, UpdateCommentRequestDTO request);
+
+    public void deleteComment(Long commentId);
 }

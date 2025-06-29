@@ -6,6 +6,7 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,7 +42,7 @@ public class VideoController {
         log.info("Like video, videoId={}, userId={}", videoId, userId);
         try {
             videoService.likeVideo(videoId, userId);
-            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Like video successfully");
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Like video successfully");
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Like video fail");
@@ -67,7 +68,7 @@ public class VideoController {
         log.info("Dislike video, videoId={}, userId={}", videoId, userId);
         try {
             videoService.dislikeVideo(videoId, userId);
-            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Dislike video successfully");
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Dislike video successfully");
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Dislike video fail");
@@ -92,7 +93,7 @@ public class VideoController {
     public ResponseData<CheckLikeStatusResponseDTO> checkLikeStatus(@PathVariable @Min(1) Long videoId, @RequestParam @Min(1) Long userId) {
         log.info("Check like and dislike button status, videoId={}, userId={}", videoId, userId);
         try {
-            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Check status like and dislike button successfully", videoService.checkLikeStatus(videoId, userId));
+            return new ResponseData<>(HttpStatus.OK.value(), "Check status like and dislike button successfully", videoService.checkLikeStatus(videoId, userId));
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Check status like and dislike button fail");
@@ -104,7 +105,7 @@ public class VideoController {
     public ResponseData<CountForVideoResponseDTO> countForVideo(@PathVariable @Min(1) Long videoId) {
         log.info("Count like, dislike and comment for video, videoId={}", videoId);
         try {
-            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Count like, dislike and comment successfully", videoService.countForVideo(videoId));
+            return new ResponseData<>(HttpStatus.OK.value(), "Count like, dislike and comment successfully", videoService.countForVideo(videoId));
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Count like, dislike and comment fail");
@@ -112,6 +113,7 @@ public class VideoController {
     }
 
     // TODO: Count view (Future) (Frontend (Observe) + Backend (Redis))
+
     @Operation(method = "GET", summary = "Get all comments", description = "Get all comments for video")
     @GetMapping(value = "/comment/{videoId}")
     public ResponseData<?> getAllComments(@PathVariable @Min(1) Long videoId) {
@@ -125,7 +127,7 @@ public class VideoController {
         log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
         try {
             videoService.saveComment(request);
-            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Comment video successfully");
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Comment video successfully");
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Comment video fail");
@@ -138,10 +140,23 @@ public class VideoController {
         log.info("Update comment, commentId={}", commentId);
         try {
             videoService.updateComment(commentId, request);
-            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Update comment successfully");
+            return new ResponseData<>(HttpStatus.OK.value(), "Update comment successfully");
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update comment fail");
+        }
+    }
+
+    @Operation(summary = "Delete comment", description = "Delete comment permanently")
+    @DeleteMapping("/comment/{commendId}")
+    public ResponseData<Void> deleteComment(@Min(value = 1) @PathVariable Long commendId) {
+        log.info("Delete comment, commentId={}", commendId);
+        try {
+            videoService.deleteComment(commendId);
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Delete comment successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Delete comment fail");
         }
     }
 }

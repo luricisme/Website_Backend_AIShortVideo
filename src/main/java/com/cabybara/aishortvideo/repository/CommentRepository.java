@@ -17,6 +17,7 @@ public interface CommentRepository extends JpaRepository<CommentedVideo, Long> {
     @Query("""
                 SELECT new com.cabybara.aishortvideo.dto.response.video.GetAllCommentsForVideoResponseDTO(
                     c.id,
+                    u.id,
                     u.avatar,
                     u.username,
                     c.content,
