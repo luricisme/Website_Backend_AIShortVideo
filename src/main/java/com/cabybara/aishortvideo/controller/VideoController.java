@@ -3,6 +3,7 @@ package com.cabybara.aishortvideo.controller;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -94,4 +95,18 @@ public class VideoController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Check status like and dislike button fail");
         }
     }
+
+    @Operation(method = "GET", summary = "Count like, dislike and comment", description = "Count like, dislike and comment")
+    @GetMapping(value = "/count/{videoId}")
+    public ResponseData<CountForVideoResponseDTO> countForVideo(@PathVariable @Min(1) Long videoId) {
+        log.info("Count like, dislike and comment for video, videoId={}", videoId);
+        try {
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Count like, dislike and comment successfully", videoService.countForVideo(videoId));
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Count like, dislike and comment fail");
+        }
+    }
+
+    // TODO: Count view (Future) (Frontend (Observe) + Backend (Redis))
 }

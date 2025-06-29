@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.service.video.implement;
 
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.GetAllVideoResponseDTO;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
@@ -102,6 +103,12 @@ public class VideoServiceImpl implements VideoService {
                 .liked(liked)
                 .disliked(disliked)
                 .build();
+    }
+
+    @Override
+    public CountForVideoResponseDTO countForVideo(Long videoId) {
+        return videoRepository.getVideoCountBy(videoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }
 
     private Video getVideoById(Long videoId) {

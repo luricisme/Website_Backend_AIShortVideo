@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.service.video;
 
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 
 public interface VideoService {
     public PageResponse<?> getAllVideosWithRandom();
@@ -15,4 +16,6 @@ public interface VideoService {
     public void undislikeVideo(Long videoId, Long userId);
 
     public CheckLikeStatusResponseDTO checkLikeStatus(Long videoId, Long userId);
+
+    public CountForVideoResponseDTO countForVideo(Long videoId);
 }
