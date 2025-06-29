@@ -1,6 +1,6 @@
 package com.cabybara.aishortvideo.mapper;
 
-import com.cabybara.aishortvideo.dto.response.video.GetAllVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.VideoTagDTO;
 import com.cabybara.aishortvideo.model.Video;
 import com.cabybara.aishortvideo.model.VideoTag;
@@ -14,7 +14,7 @@ public interface VideoMapper {
     @Mapping(target = "status", expression = "java(video.getStatus().name())")
     @Mapping(target = "tags", expression = "java(mapTags(video.getTags()))")
     @Mapping(target = "commentCnt", source = "commentCnt")
-    GetAllVideoResponseDTO toDto(Video video);
+    VideoDetailResponseDTO toDto(Video video);
 
     default List<VideoTagDTO> mapTags(List<VideoTag> tags) {
         if (tags == null) return List.of();

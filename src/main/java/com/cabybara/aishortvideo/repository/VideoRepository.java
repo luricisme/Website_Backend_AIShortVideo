@@ -21,6 +21,13 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     List<Video> findAllRandom();
 
     @Query("""
+                SELECT v
+                FROM Video v
+                WHERE v.status = 'PUBLISHED' AND v.id = :videoId
+            """)
+    Video findOne(@Param("videoId") Long videoId);
+
+    @Query("""
                 SELECT new com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO(v.likeCnt, v.dislikeCnt, v.commentCnt)
                 FROM Video v
                 WHERE v.id = :videoId

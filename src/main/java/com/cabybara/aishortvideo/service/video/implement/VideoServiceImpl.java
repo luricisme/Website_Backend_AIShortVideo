@@ -6,7 +6,7 @@ import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.GetAllCommentsForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.GetAllVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
@@ -33,7 +33,7 @@ public class VideoServiceImpl implements VideoService {
     public PageResponse<?> getAllVideosWithRandom() {
         List<Video> results = videoRepository.findAllRandom();
 
-        List<GetAllVideoResponseDTO> videoDTOs = results.stream()
+        List<VideoDetailResponseDTO> videoDTOs = results.stream()
                 .map(videoMapper::toDto)
                 .toList();
 
@@ -41,6 +41,12 @@ public class VideoServiceImpl implements VideoService {
                 .totalElements(videoDTOs.size())
                 .items(videoDTOs)
                 .build();
+    }
+
+    @Override
+    public VideoDetailResponseDTO getOneVideo(Long videoId) {
+        Video result = videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
+        return videoMapper.toDto(result);
     }
 
     @Override
@@ -153,7 +159,7 @@ public class VideoServiceImpl implements VideoService {
 
     private User getUserById(Long userId) {
         System.out.println("TOI DANG KIEM USER VOI ID = " + userId);
-            return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private CommentedVideo getCommentById(Long commentId) {

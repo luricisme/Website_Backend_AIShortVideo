@@ -5,9 +5,12 @@ import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
 
 public interface VideoService {
     public PageResponse<?> getAllVideosWithRandom();
+
+    public VideoDetailResponseDTO getOneVideo(Long videoId);
 
     public void likeVideo(Long videoId, Long userId);
 

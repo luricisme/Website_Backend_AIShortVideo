@@ -6,6 +6,8 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +36,18 @@ public class VideoController {
     public ResponseData<?> collectData() {
         log.info("Get all videos randomly for home page");
         return new ResponseData<>(HttpStatus.OK.value(), "videos", videoService.getAllVideosWithRandom());
+    }
+
+    @Operation(summary = "Get video detail", description = "Get video detail by videoId")
+    @GetMapping("/{videoId}")
+    public ResponseData<VideoDetailResponseDTO> getOneVideo(@PathVariable @Min(1) Long videoId) {
+        try {
+            log.info("Get video detail, videoId={}", videoId);
+            return new ResponseData<>(HttpStatus.OK.value(), "Video detail", videoService.getOneVideo(videoId));
+        } catch (ResourceNotFoundException e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @Operation(method = "POST", summary = "Like video", description = "Like video (One times)")
