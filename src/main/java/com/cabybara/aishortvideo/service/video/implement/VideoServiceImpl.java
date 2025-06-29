@@ -1,18 +1,17 @@
 package com.cabybara.aishortvideo.service.video.implement;
 
+import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.GetAllCommentsForVideoResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.GetAllVideoResponseDTO;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
-import com.cabybara.aishortvideo.repository.DislikedVideoRepository;
-import com.cabybara.aishortvideo.repository.LikedVideoRepository;
-import com.cabybara.aishortvideo.repository.UserRepository;
-import com.cabybara.aishortvideo.repository.VideoRepository;
+import com.cabybara.aishortvideo.repository.*;
 import com.cabybara.aishortvideo.service.video.VideoService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ public class VideoServiceImpl implements VideoService {
     private final LikedVideoRepository likedVideoRepository;
     private final DislikedVideoRepository dislikedVideoRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final VideoMapper videoMapper;
 
     @Override
@@ -111,11 +111,48 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }
 
+    @Override
+    public Long saveComment(SaveCommentRequestDTO request) {
+        User user = getUserById(request.getUserId());
+        Video video = getVideoById(request.getVideoId());
+
+        CommentedVideo comment = CommentedVideo.builder()
+                .user(user)
+                .video(video)
+                .content(request.getContent())
+                .build();
+        commentRepository.save(comment);
+        return comment.getId();
+    }
+
+    @Override
+    public PageResponse<?> getAllComments(Long videoId) {
+        List<GetAllCommentsForVideoResponseDTO> comments = commentRepository.getAllComments(videoId);
+        return PageResponse.builder()
+                .totalElements(comments.size())
+                .items(comments)
+                .build();
+    }
+
+    @Override
+    public void updateComment(Long commentId, UpdateCommentRequestDTO request) {
+        CommentedVideo comment = getCommentById(commentId);
+        comment.setContent(request.getContent());
+        commentRepository.save(comment);
+    }
+
     private Video getVideoById(Long videoId) {
+        System.out.println("TOI DANG KIEM VIDEO VOI ID = " + videoId);
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }
 
     private User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
+        System.out.println("TOI DANG KIEM USER VOI ID = " + userId);
+            return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private CommentedVideo getCommentById(Long commentId) {
+        System.out.println("TOI DANG KIEM COMMENT VOI ID = " + commentId);
+        return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
     }
 }

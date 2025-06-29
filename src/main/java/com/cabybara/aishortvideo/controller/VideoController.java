@@ -1,5 +1,7 @@
 package com.cabybara.aishortvideo.controller;
 
+import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
@@ -7,6 +9,7 @@ import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,4 +112,36 @@ public class VideoController {
     }
 
     // TODO: Count view (Future) (Frontend (Observe) + Backend (Redis))
+    @Operation(method = "GET", summary = "Get all comments", description = "Get all comments for video")
+    @GetMapping(value = "/comment/{videoId}")
+    public ResponseData<?> getAllComments(@PathVariable @Min(1) Long videoId) {
+        log.info("Get all comments randomly for video");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get all comments for video", videoService.getAllComments(videoId));
+    }
+
+    @Operation(method = "POST", summary = "Comment video", description = "Comment video (Login first)")
+    @PostMapping(value = "/comment")
+    public ResponseData<Long> saveComment(@Valid @RequestBody SaveCommentRequestDTO request) {
+        log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
+        try {
+            videoService.saveComment(request);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Comment video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Comment video fail");
+        }
+    }
+
+    @Operation(method = "PATCH", summary = "Update comment", description = "Update comment")
+    @PatchMapping(value = "/comment/{commentId}")
+    public ResponseData<Void> updateComment(@PathVariable @Min(1) Long commentId, @Valid @RequestBody UpdateCommentRequestDTO request) {
+        log.info("Update comment, commentId={}", commentId);
+        try {
+            videoService.updateComment(commentId, request);
+            return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Update comment successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update comment fail");
+        }
+    }
 }
