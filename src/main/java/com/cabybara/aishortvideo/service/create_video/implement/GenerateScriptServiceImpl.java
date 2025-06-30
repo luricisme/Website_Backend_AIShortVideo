@@ -17,7 +17,7 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
 
     @Value("${model.chat}")
     private String modelChat;
-    private final int MAX_LENGTH = 80;
+    private final int MAX_LENGTH = 50;
 
 
     @Override
@@ -33,15 +33,15 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
 
     private String createScriptPrompt(GenerateScriptRequestDTO request) {
         return String.format(
-                "Hãy viết hoặc phát triển một câu chuyện liền mạch dựa vào dữ liệu '%s' với các yêu cầu:\n" +
-                        "- Phong cách: %s\n" +
-                        "- Đối tượng: %s\n" +
-                        "- Được viết ở ngôn ngữ: %s\n" +
-                        "- Định dạng:\n" +
-                        "  + Văn xuôi thuần túy (không phân cảnh, không tiêu đề)\n" +
-                        "  + Ngôi kể thứ ba\n" +
-                        "- Độ dài: Tối đa %d từ\n" +  // thêm dòng này
-                        "QUAN TRỌNG: Chỉ trả về nội dung câu chuyện không định dạng",
+                "Write or develop a coherent story based on the data '%s' with the following requirements:\n" +
+                        "- Style: %s\n" +
+                        "- Audience: %s\n" +
+                        "- Language: %s\n" +
+                        "- Format:\n" +
+                        "  + Plain prose (no scenes, no titles)\n" +
+                        "  + Third-person narration\n" +
+                        "- Length: Maximum %d words\n" +
+                        "IMPORTANT: Return only the story content without formatting",
                 request.getData(),
                 request.getStyle(),
                 request.getAudience(),
