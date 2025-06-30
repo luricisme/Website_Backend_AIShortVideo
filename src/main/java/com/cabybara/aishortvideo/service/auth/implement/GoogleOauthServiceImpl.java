@@ -6,14 +6,19 @@ import com.cabybara.aishortvideo.dto.auth.LoginResponseDTO;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.service.auth.GoogleOauthService;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Service
+@Slf4j
 public class GoogleOauthServiceImpl implements GoogleOauthService {
     private final WebClient googleOAuth2TokenWebClient;
     private final WebClient googleWebClient;
@@ -54,6 +59,38 @@ public class GoogleOauthServiceImpl implements GoogleOauthService {
                 .bodyToMono(GoogleTokenResponseDTO.class);
     }
 
+    @Override
+    public Optional<GoogleTokenResponseDTO> refreshAccessToken(String refreshToken) {
+        try {
+            return Optional.ofNullable(
+                    googleOAuth2TokenWebClient.post()
+                            .uri("/token")
+                            .body(BodyInserters
+                                    .fromFormData("client_id", clientId)
+                                    .with("client_secret", clientSecret)
+                                    .with("refresh_token", refreshToken)
+                                    .with("grant_type", "refresh_token"))
+                            .retrieve()
+                            .bodyToMono(GoogleTokenResponseDTO.class)
+                            .block()
+            );
+        } catch (WebClientResponseException ex) {
+            log.error("Failed to refresh Google token: {}", ex.getResponseBodyAsString());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public GoogleUserInfoDTO getUserInfo(String accessToken) {
+        return googleWebClient.get()
+                .uri("/oauth2/v3/userinfo")
+                .headers(headers -> headers.setBearerAuth(accessToken))
+                .retrieve()
+                .bodyToMono(GoogleUserInfoDTO.class)
+                .block();
+    }
+
+    @Override
     public LoginResponseDTO authenticateWithGoogle(String code) {
         // 1. Exchange token
         GoogleTokenResponseDTO tokenResponse = exchangeAuthorizationCode(code).block();
@@ -63,12 +100,7 @@ public class GoogleOauthServiceImpl implements GoogleOauthService {
         }
 
         // 2. Get user info
-        GoogleUserInfoDTO userInfo = googleWebClient.get()
-                .uri("/oauth2/v3/userinfo")
-                .headers(headers -> headers.setBearerAuth(tokenResponse.getAccess_token()))
-                .retrieve()
-                .bodyToMono(GoogleUserInfoDTO.class)
-                .block();
+        GoogleUserInfoDTO userInfo = getUserInfo(tokenResponse.getAccess_token());
 
         if (userInfo == null || userInfo.getEmail() == null) {
             throw new RuntimeException("Cannot get user info from google");

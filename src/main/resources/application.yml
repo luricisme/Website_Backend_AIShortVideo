@@ -41,9 +41,12 @@ spring:
       client:
         registration:
           google:
-            client-id:
-            client-secret:
-            redirect-uri:
+            client-id: "126919921152-cvfic5fhg1blneub5e4hgnojg1v7q2d2.apps.googleusercontent.com"
+            client-secret: "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"
+            redirect-uri: "http://localhost:9090/auth/oauth/google"
+            scope:
+              - email
+              - profile
 
   data:
     redis:
