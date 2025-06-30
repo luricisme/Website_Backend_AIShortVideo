@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.model;
 
 import com.cabybara.aishortvideo.utils.UserRole;
+import lombok.Getter;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -10,13 +11,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class UserDetail implements UserDetails {
 
+    private Long id;
     private String email;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserDetail(User user) {
+        this.id = user.getId();
         this.email = user.getEmail(); // Use email as username
         this.password = user.getPassword();
         String roleName = user.getRole() == UserRole.USER ? "USER" : "ADMIN";

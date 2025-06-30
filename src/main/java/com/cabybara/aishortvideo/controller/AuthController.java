@@ -1,12 +1,11 @@
 package com.cabybara.aishortvideo.controller;
 
-import com.cabybara.aishortvideo.dto.auth.LoginRequestDTO;
-import com.cabybara.aishortvideo.dto.auth.LoginResponseDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.*;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
+import com.cabybara.aishortvideo.model.UserDetail;
+import com.cabybara.aishortvideo.service.auth.implement.GoogleOauthServiceImpl;
 import com.cabybara.aishortvideo.service.auth.implement.JwtServiceImpl;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,9 +21,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/auth")
@@ -34,11 +33,18 @@ public class AuthController {
     private final UserServiceImpl userService;
     private final JwtServiceImpl jwtService;
     private final AuthenticationManager authenticationManager;
+    private final GoogleOauthServiceImpl googleOauthService;
 
-    public AuthController(UserServiceImpl userService, JwtServiceImpl jwtService, AuthenticationManager authenticationManager) {
+    public AuthController(
+            UserServiceImpl userService,
+            JwtServiceImpl jwtService,
+            AuthenticationManager authenticationManager,
+            GoogleOauthServiceImpl googleOauthService
+    ) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.googleOauthService = googleOauthService;
     }
 
     @PostMapping("/register")
@@ -90,18 +96,19 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDetail userDetail = (UserDetail) authentication.getPrincipal();
 
-        String jwt = jwtService.generateToken(userDetails.getUsername());
+        String jwt = jwtService.generateToken(userDetail.getUsername());
 
-        String role = userDetails.getAuthorities().stream()
+        String role = userDetail.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst().orElse("UNDEFINED");
 
         LoginResponseDTO response = LoginResponseDTO.builder()
-                .username(userDetails.getUsername())
+                .username(userDetail.getUsername())
                 .jwt(jwt)
                 .role(role)
+                .id(userDetail.getId())
                 .build();
 
         return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);
@@ -133,8 +140,9 @@ public class AuthController {
     }
 
     @PostMapping("/oauth/google")
-    public ResponseData<String> loginWithGoogle() {
-        return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+    public ResponseData<LoginResponseDTO> loginWithGoogle(@RequestBody SocialAccountRegisterDTO socialAccountRegisterDTO) {
+        LoginResponseDTO loginResponseDTO = googleOauthService.authenticateWithGoogle(socialAccountRegisterDTO.getAuthorizeCode());
+        return new ResponseData<>(HttpStatus.OK, "Successfully", loginResponseDTO);
     }
 
     @PreAuthorize("hasRole('USER')")

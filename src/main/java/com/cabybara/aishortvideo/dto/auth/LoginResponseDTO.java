@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class LoginResponseDTO {
     private String jwt;
     private String username;
+    private Long id;
     private String role;
 }

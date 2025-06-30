@@ -48,8 +48,12 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserSocialAccount> socialAccounts = new ArrayList<>();
+
     // Quan hệ OneToMany với Video
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Video> videos = new ArrayList<>();
+
 }
