@@ -52,8 +52,16 @@ public class GenerateImageServiceImpl implements GenerateImageService {
 
     private String createImagePrompt(GenerateImageRequestDTO request) {
         String script = request.getScript().trim();
+
+        String translatePrompt = String.format("Translate the following text to English. Always return the English version only:\n%s", script);
+
+        String translatedScript = aiGateway.callChatModelAI(translatePrompt);
+
+        System.out.println("TRANSLATED SCRIPT: " + translatedScript);
+
         return String.format(
-                "Create an image related to the passage: %s", script
+                "Create a high-quality, detailed image that focuses on the main subject of the following script: %s",
+                translatedScript
         );
     }
 

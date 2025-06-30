@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.model;
 
 import com.cabybara.aishortvideo.utils.UserRole;
 import com.cabybara.aishortvideo.utils.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,4 +50,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSocialAccount> socialAccounts = new ArrayList<>();
+
+    // Quan hệ OneToMany với Video
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Video> videos = new ArrayList<>();
+
 }
