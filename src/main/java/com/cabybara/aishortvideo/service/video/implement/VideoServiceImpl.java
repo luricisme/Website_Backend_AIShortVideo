@@ -3,10 +3,7 @@ package com.cabybara.aishortvideo.service.video.implement;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
-import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.GetAllCommentsForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.*;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
@@ -14,6 +11,7 @@ import com.cabybara.aishortvideo.repository.*;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -157,6 +155,12 @@ public class VideoServiceImpl implements VideoService {
         Video video = getVideoById(videoId);
         video.setViewCnt(video.getViewCnt() + 1);
         videoRepository.save(video);
+    }
+
+    @Override
+    public List<TopTrendingCategoryResponseDTO> getTopTrendingCategories() {
+        List<TopTrendingCategoryResponseDTO> top5TrendingCategories = videoRepository.findTop5CategoriesByTotalViews(PageRequest.of(0, 5));
+        return top5TrendingCategories;
     }
 
     private Video getVideoById(Long videoId) {

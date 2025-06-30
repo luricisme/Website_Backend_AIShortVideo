@@ -6,6 +6,7 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.TopTrendingCategoryResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.repository.VideoRepository;
@@ -19,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/video")
@@ -126,8 +129,6 @@ public class VideoController {
         }
     }
 
-    // TODO: Count view (Future) (Frontend (Observe) + Backend (Redis))
-
     @Operation(method = "GET", summary = "Get all comments", description = "Get all comments for video")
     @GetMapping(value = "/comment/{videoId}")
     public ResponseData<?> getAllComments(@PathVariable @Min(1) Long videoId) {
@@ -185,5 +186,12 @@ public class VideoController {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Increase view of video fail");
         }
+    }
+
+    @Operation(method = "GET", summary = "Get top 5 trending categories", description = "Get top 5 trending categories based on views")
+    @GetMapping(value = "/top-trending-categories")
+    public ResponseData<List<TopTrendingCategoryResponseDTO>> getTopTrendingCategories() {
+        log.info("Get top 5 trending categories");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get top 5 trending categories", videoService.getTopTrendingCategories());
     }
 }

@@ -41,6 +41,7 @@ public class GenerateScriptServiceImpl implements GenerateScriptService {
                         "  + Plain prose (no scenes, no titles)\n" +
                         "  + Third-person narration\n" +
                         "- Length: Maximum %d words\n" +
+                        "- The output must be written entirely in the specified language above, with no other languages mixed in\n" +
                         "IMPORTANT: Return only the story content without formatting",
                 request.getData(),
                 request.getStyle(),

@@ -114,7 +114,7 @@ CREATE TABLE video_tags
     FOREIGN KEY (id_video) REFERENCES videos (id) ON DELETE CASCADE
 );
 
--- Trigger cho 3 trường count trong videos
+-- SET UP TRIGGER FOR COUNT LIKE, DISLIKE AND COMMENT
 CREATE OR REPLACE FUNCTION update_video_counters()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -162,20 +162,43 @@ AFTER INSERT OR DELETE ON commented_video
 FOR EACH ROW
 EXECUTE FUNCTION update_video_counters();
 
-INSERT INTO videos (title, category, style, target, script, audio_url, video_url, length, thumbnail, status, id_user)
-VALUES (
-           'Funny Cat',
-           'Comedy',
-           'Cartoon',
-           'General',
-           'Funny cat jumps around the house',
-           'https://audio.url/funnycat.mp3',
-           'https://video.url/funnycat.mp4',
-           2.5,
-           'https://thumb.url/cat.png',
-           'PUBLISHED',
-           1
-       );
+-- ADD DATA FOR TESTING API
+INSERT INTO videos (title, category, style, target, script, audio_url, video_url, length, thumbnail, status, id_user, view_cnt)
+VALUES
+-- Comedy category
+('Cat Dance', 'Comedy', 'Live Action', 'General', 'A dancing cat in a living room', 'https://audio.url/catdance.mp3', 'https://video.url/catdance.mp4', 3.0, 'https://thumb.url/catdance.png', 'PUBLISHED', 1, 1500),
+
+-- Education category
+('Physics Basics', 'Education', 'Animated', 'Teens', 'Learn Newton’s Laws', 'https://audio.url/physics.mp3', 'https://video.url/physics.mp4', 5.0, 'https://thumb.url/physics.png', 'PUBLISHED', 26, 4200),
+('Math Tricks', 'Education', 'Whiteboard', 'Teens', 'Cool math shortcuts', 'https://audio.url/math.mp3', 'https://video.url/math.mp4', 4.0, 'https://thumb.url/math.png', 'PUBLISHED', 7, 3800),
+
+-- Music category
+('Lo-fi Chill', 'Music', 'Lo-fi', 'General', 'Relaxing lo-fi beats', 'https://audio.url/lofi.mp3', 'https://video.url/lofi.mp4', 2.5, 'https://thumb.url/lofi.png', 'PUBLISHED', 10, 8000),
+
+-- News category
+('Morning Headlines', 'News', 'Talking Head', 'Adults', 'Top news stories of the day', 'https://audio.url/news.mp3', 'https://video.url/news.mp4', 3.5, 'https://thumb.url/news.png', 'PUBLISHED', 11, 600),
+
+-- Entertainment category
+('Dance Challenge', 'Entertainment', 'Live', 'Teens', 'New TikTok dance', 'https://audio.url/dance.mp3', 'https://video.url/dance.mp4', 3.2, 'https://thumb.url/dance.png', 'PUBLISHED', 26, 7200),
+('Prank Gone Wrong', 'Entertainment', 'Prank', 'Teens', 'Funny prank failed', 'https://audio.url/prank.mp3', 'https://video.url/prank.mp4', 2.8, 'https://thumb.url/prank.png', 'PUBLISHED', 21, 5500);
+
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (4, 'cat'), (4, 'funny'), (4, 'home');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (26, 'cat'), (26, 'dance'), (26, 'music');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (27, 'physics'), (27, 'education'), (27, 'science');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (28, 'math'), (28, 'tricks'), (28, 'education');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (29, 'lofi'), (29, 'chill'), (29, 'music');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (30, 'news'), (30, 'daily'), (30, 'update');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (31, 'dance'), (31, 'challenge'), (31, 'viral');
+
+INSERT INTO video_tags (id_video, tag_name) VALUES (32, 'prank'), (32, 'funny'), (32, 'fail');
+
 
 INSERT INTO liked_videos (id_user, id_video)
 VALUES (1, 4);

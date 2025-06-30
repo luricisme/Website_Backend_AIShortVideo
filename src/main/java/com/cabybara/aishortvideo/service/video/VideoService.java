@@ -5,7 +5,10 @@ import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.TopTrendingCategoryResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+
+import java.util.List;
 
 public interface VideoService {
     public PageResponse<?> getAllVideosWithRandom();
@@ -33,4 +36,6 @@ public interface VideoService {
     public void deleteComment(Long commentId);
 
     public void increaseView(Long videoId);
+
+    public List<TopTrendingCategoryResponseDTO> getTopTrendingCategories();
 }
