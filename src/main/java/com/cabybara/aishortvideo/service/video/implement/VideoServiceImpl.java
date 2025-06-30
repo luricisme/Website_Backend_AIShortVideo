@@ -152,6 +152,13 @@ public class VideoServiceImpl implements VideoService {
         commentRepository.deleteById(commentId);
     }
 
+    @Override
+    public void increaseView(Long videoId) {
+        Video video = getVideoById(videoId);
+        video.setViewCnt(video.getViewCnt() + 1);
+        videoRepository.save(video);
+    }
+
     private Video getVideoById(Long videoId) {
         System.out.println("TOI DANG KIEM VIDEO VOI ID = " + videoId);
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));

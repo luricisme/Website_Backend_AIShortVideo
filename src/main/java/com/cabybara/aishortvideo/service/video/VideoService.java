@@ -31,4 +31,6 @@ public interface VideoService {
     public void updateComment(Long commentId, UpdateCommentRequestDTO request);
 
     public void deleteComment(Long commentId);
+
+    public void increaseView(Long videoId);
 }

@@ -173,4 +173,17 @@ public class VideoController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Delete comment fail");
         }
     }
+
+    @Operation(method = "PATCH", summary = "Increase view", description = "Increase view of video")
+    @PatchMapping(value = "/view/{videoId}")
+    public ResponseData<Void> increaseView(@PathVariable @Min(1) Long videoId) {
+        log.info("Increase view of video, videoId={}", videoId);
+        try {
+            videoService.increaseView(videoId);
+            return new ResponseData<>(HttpStatus.OK.value(), "Increase view of video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Increase view of video fail");
+        }
+    }
 }
