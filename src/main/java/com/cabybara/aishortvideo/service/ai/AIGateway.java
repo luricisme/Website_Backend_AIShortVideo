@@ -191,6 +191,8 @@ public class AIGateway {
             lang = "vi-VN";
         } else if ("en".equals(request.getLang().getValue())) {
             lang = "en-US";
+        } else if ("zh".equals(request.getLang().getValue())) {
+            lang = "zh-CN";
         }
         System.out.println("LANG SPEAK: " + lang);
 

@@ -13,6 +13,6 @@ public class DotenvInitializer {
         dotenv.entries().forEach(entry -> {
             System.setProperty(entry.getKey(), entry.getValue());
         });
-        System.out.println("[Dotenv] Loaded environment variables");
+//        System.out.println("[Dotenv] Loaded environment variables");
     }
 }

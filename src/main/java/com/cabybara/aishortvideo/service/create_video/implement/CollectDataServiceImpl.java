@@ -121,18 +121,6 @@ public class CollectDataServiceImpl implements CollectDataService {
         }
     }
 
-//    private String collectDataPrompt(String query, String lang) {
-//        return String.format(
-//                "Trả lời bằng ngôn ngữ '%s' với nội dung ngắn gọn và chính xác về chủ đề: '%s'.\n" +
-//                        "- Tối đa %d từ.\n" +
-//                        "- Chỉ cung cấp thông tin chính xác, không giới thiệu, không đặt câu hỏi ngược lại.\n" +
-//                        "- Nếu không tìm thấy thông tin, trả về đúng câu: 'Không có dữ liệu phù hợp'.\n" +
-//                        "- Ưu tiên thông tin từ nguồn tin cậy (sách, nghiên cứu khoa học, website chính thức).\n" +
-//                        "- QUAN TRỌNG: Chỉ trả về nội dung, không thêm chào hỏi, không giải thích cách tìm.\n",
-//                lang, query, MAX_LENGTH
-//        );
-//    }
-
     private String collectDataPrompt(String query, String lang) {
         return String.format(
                 "Respond in '%s' with concise and accurate information about the topic: '%s'.\n" +

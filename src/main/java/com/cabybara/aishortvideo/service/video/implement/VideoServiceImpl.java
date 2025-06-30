@@ -3,10 +3,8 @@ package com.cabybara.aishortvideo.service.video.implement;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
-import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.GetAllCommentsForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
+import com.cabybara.aishortvideo.dto.response.video.*;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
@@ -14,6 +12,10 @@ import com.cabybara.aishortvideo.repository.*;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class VideoServiceImpl implements VideoService {
     private final DislikedVideoRepository dislikedVideoRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final VideoTagsRepository videoTagsRepository;
     private final VideoMapper videoMapper;
 
     @Override
@@ -113,7 +116,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public CountForVideoResponseDTO countForVideo(Long videoId) {
-        return videoRepository.getVideoCountBy(videoId)
+        return videoRepository.getVideoCount(videoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }
 
@@ -152,6 +155,71 @@ public class VideoServiceImpl implements VideoService {
         commentRepository.deleteById(commentId);
     }
 
+    @Override
+    public void increaseView(Long videoId) {
+        Video video = getVideoById(videoId);
+        video.setViewCnt(video.getViewCnt() + 1);
+        videoRepository.save(video);
+    }
+
+    @Override
+    public List<TopTrendingCategoryResponseDTO> getTopTrendingCategories() {
+        List<TopTrendingCategoryResponseDTO> top5TrendingCategories = videoRepository.findTop5CategoriesByTotalViews(PageRequest.of(0, 5));
+        return top5TrendingCategories;
+    }
+
+    @Override
+    public List<TopPopularTagResponseDTO> getTopPopularTags() {
+        List<TopPopularTagResponseDTO> top5PopularTags = videoTagsRepository.findTop5TagsByVideoCount(PageRequest.of(0, 5));
+        return top5PopularTags;
+    }
+
+    @Override
+    public PageResponseDetail<?> getVideoByCategory(int pageNo, int pageSize, String category) {
+        int page  = 0;
+        if (pageNo > 0) {
+            page = pageNo - 1;
+        }
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<Video> videos = videoRepository.findVideoByCategory(category, pageable);
+
+        List<VideoDetailResponseDTO> videoDTOs = videos.stream()
+                .map(videoMapper::toDto)
+                .toList();
+
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(videos.getTotalPages())
+                .totalElements(videos.getTotalElements())
+                .items(videoDTOs)
+                .build();
+    }
+
+    @Override
+    public PageResponseDetail<?> getVideoByTagName(int pageNo, int pageSize, String tagName) {
+        int page = 0;
+        if(pageNo > 0){
+            page = pageNo - 1;
+        }
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<Video> videos = videoRepository.findVideoByTagName(tagName, pageable);
+
+        List<VideoDetailResponseDTO> videoDTOs = videos.stream()
+                .map(videoMapper::toDto)
+                .toList();
+
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(videos.getTotalPages())
+                .totalElements(videos.getTotalElements())
+                .items(videoDTOs)
+                .build();
+    }
+
     private Video getVideoById(Long videoId) {
         System.out.println("TOI DANG KIEM VIDEO VOI ID = " + videoId);
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
@@ -166,4 +234,5 @@ public class VideoServiceImpl implements VideoService {
         System.out.println("TOI DANG KIEM COMMENT VOI ID = " + commentId);
         return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
     }
+
 }

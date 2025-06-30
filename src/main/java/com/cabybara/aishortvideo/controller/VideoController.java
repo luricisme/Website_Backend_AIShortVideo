@@ -4,9 +4,7 @@ import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
-import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+import com.cabybara.aishortvideo.dto.response.video.*;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.video.VideoService;
@@ -20,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/video")
 @Validated
@@ -31,6 +31,7 @@ public class VideoController {
 
     private static final String ERROR_MESSAGE = "errorMessage={}";
 
+    // HOME PAGE
     @Operation(method = "GET", summary = "Get all videos randomly", description = "Get all videos randomly for home page")
     @GetMapping(value = "")
     public ResponseData<?> collectData() {
@@ -126,8 +127,6 @@ public class VideoController {
         }
     }
 
-    // TODO: Count view (Future) (Frontend (Observe) + Backend (Redis))
-
     @Operation(method = "GET", summary = "Get all comments", description = "Get all comments for video")
     @GetMapping(value = "/comment/{videoId}")
     public ResponseData<?> getAllComments(@PathVariable @Min(1) Long videoId) {
@@ -172,5 +171,53 @@ public class VideoController {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Delete comment fail");
         }
+    }
+
+    @Operation(method = "PATCH", summary = "Increase view", description = "Increase view of video")
+    @PatchMapping(value = "/view/{videoId}")
+    public ResponseData<Void> increaseView(@PathVariable @Min(1) Long videoId) {
+        log.info("Increase view of video, videoId={}", videoId);
+        try {
+            videoService.increaseView(videoId);
+            return new ResponseData<>(HttpStatus.OK.value(), "Increase view of video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Increase view of video fail");
+        }
+    }
+
+    // TRENDING PAGE
+    @Operation(method = "GET", summary = "Get top 5 trending categories", description = "Get top 5 trending categories based on views")
+    @GetMapping(value = "/top-trending-categories")
+    public ResponseData<List<TopTrendingCategoryResponseDTO>> getTopTrendingCategories() {
+        log.info("Get top 5 trending categories");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get top 5 trending categories", videoService.getTopTrendingCategories());
+    }
+
+    @Operation(method = "GET", summary = "Get top 5 popular tags", description = "Get top 5 popular tags based on number of videos")
+    @GetMapping(value = "/top-popular-tags")
+    public ResponseData<List<TopPopularTagResponseDTO>> getTopPopularTags() {
+        log.info("Get top 5 popular tags");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get top 5 popular tags", videoService.getTopPopularTags());
+    }
+
+    @Operation(method = "GET", summary = "Get videos by category", description = "Get videos by category")
+    @GetMapping(value = "/category/{category}")
+    public ResponseData<?> getAllVideosByCategory(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(1) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @PathVariable String category) {
+        log.info("Get videos by category");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get videos by category", videoService.getVideoByCategory(pageNo, pageSize, category));
+    }
+
+    @Operation(method = "GET", summary = "Get videos by tag name", description = "Get videos by tag name")
+    @GetMapping(value = "/tag/{tagName}")
+    public ResponseData<?> getAllVideosByTagName(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(1) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @PathVariable String tagName) {
+        log.info("Get videos by tag name");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get videos by tag name", videoService.getVideoByTagName(pageNo, pageSize, tagName));
     }
 }

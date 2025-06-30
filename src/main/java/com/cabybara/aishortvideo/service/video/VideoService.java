@@ -3,11 +3,13 @@ package com.cabybara.aishortvideo.service.video;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
-import com.cabybara.aishortvideo.dto.response.video.CheckLikeStatusResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
-import com.cabybara.aishortvideo.dto.response.video.VideoDetailResponseDTO;
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
+import com.cabybara.aishortvideo.dto.response.video.*;
+
+import java.util.List;
 
 public interface VideoService {
+    // HOME PAGE
     public PageResponse<?> getAllVideosWithRandom();
 
     public VideoDetailResponseDTO getOneVideo(Long videoId);
@@ -31,4 +33,15 @@ public interface VideoService {
     public void updateComment(Long commentId, UpdateCommentRequestDTO request);
 
     public void deleteComment(Long commentId);
+
+    public void increaseView(Long videoId);
+
+    // TRENDING PAGE
+    public List<TopTrendingCategoryResponseDTO> getTopTrendingCategories();
+
+    public List<TopPopularTagResponseDTO> getTopPopularTags();
+
+    public PageResponseDetail<?> getVideoByCategory(int pageNo, int pageSize, String category);
+
+    public PageResponseDetail<?> getVideoByTagName(int pageNo, int pageSize, String tagName);
 }
