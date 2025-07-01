@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.user.implement;
 
+import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
 import com.cabybara.aishortvideo.exception.UserFollowerException;
 import com.cabybara.aishortvideo.exception.UserNotFoundException;
 import com.cabybara.aishortvideo.model.User;
@@ -70,7 +71,7 @@ public class UserFollowerServiceImpl implements UserFollowerService {
         User followerUser = userRepository.findByIdAndStatus(followerId, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("Follower user not found"));
 
-        UserFollowerId id = new UserFollowerId(userId, followerId);
+        UserFollowerId id = new UserFollowerId(followerId, userId);
         UserFollower userFollower = userFollowerRepository.findById(id)
                 .orElseThrow(() -> new UserFollowerException(HttpStatus.NOT_FOUND, "Follow relationship not found"));
 
@@ -78,29 +79,30 @@ public class UserFollowerServiceImpl implements UserFollowerService {
     }
 
     @Override
-    public Set<User> getFollowing(Long userId) {
-        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public Set<UserFollowerDTO> getFollowing(Long userId) {
+//        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+//                .orElseThrow(() -> new UserNotFoundException("User not found"));
+//
+//        return user.getFollowing().stream()
+//                .map(UserFollower::getFollowingUser)
+//                .collect(Collectors.toSet());
 
-        List<UserFollower> list = userFollowerRepository.findAll();
-        for (UserFollower f : list) {
-            System.out.println("follower: " + f.getFollowerUser().getId() + ", following: " + f.getFollowingUser().getId());
-        }
-
-        System.out.println(user.getFollowing());
-
-        return user.getFollowing().stream()
-                .map(UserFollower::getFollowingUser)
+        return userFollowerRepository.findAllUsersIFollow(userId).stream()
+                .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<User> getFollowers(Long userId) {
-        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public Set<UserFollowerDTO> getFollowers(Long userId) {
+//        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+//                .orElseThrow(() -> new UserNotFoundException("User not found"));
+//
+//        return user.getFollowers().stream()
+//                .map(UserFollower::getFollowerUser)
+//                .collect(Collectors.toSet());
 
-        return user.getFollowers().stream()
-                .map(UserFollower::getFollowerUser)
+        return userFollowerRepository.findAllUsersFollowingMe(userId).stream()
+                .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
     }
 }

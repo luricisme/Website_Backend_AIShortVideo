@@ -51,6 +51,7 @@ public class User {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<UserSocialAccount> socialAccounts = new ArrayList<>();
 
     // Quan hệ OneToMany với Video
@@ -59,8 +60,10 @@ public class User {
     private List<Video> videos = new ArrayList<>();
 
     @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<UserFollower> followers = new HashSet<>();
 
     @OneToMany(mappedBy = "followerUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserFollower> following = new HashSet<>();
+    @JsonIgnore
+    private Set<UserFollower> followings = new HashSet<>();
 }

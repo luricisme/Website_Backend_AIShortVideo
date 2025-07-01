@@ -4,6 +4,7 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
 import com.google.api.services.youtube.model.Video;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.io.File;
 
 @RestController
 @RequestMapping("publish")
+@Tag(name = "Upload video apis")
 @Slf4j
 public class PublishVideoController {
     private final YoutubeApiService youtubeApiService;
