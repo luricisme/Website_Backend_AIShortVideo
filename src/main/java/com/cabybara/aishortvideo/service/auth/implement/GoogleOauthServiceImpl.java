@@ -117,7 +117,7 @@ public class GoogleOauthServiceImpl implements GoogleOauthService {
         return LoginResponseDTO.builder()
                 .id(user.getId())
                 .jwt(jwt)
-                .role(user.getRole().toString())
+                .role(user.getRole().name())
                 .username(user.getUsername())
                 .build();
     }
