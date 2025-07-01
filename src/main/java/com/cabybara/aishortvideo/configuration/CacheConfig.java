@@ -33,7 +33,7 @@ public class CacheConfig {
 
     private RedisCacheConfiguration defaultCacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(3))
+                .entryTtl(Duration.ofSeconds(30))
                 .disableCachingNullValues();
     }
 

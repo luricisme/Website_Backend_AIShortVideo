@@ -8,7 +8,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -56,4 +58,9 @@ public class User {
     @JsonIgnore
     private List<Video> videos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserFollower> followers = new HashSet<>();
+
+    @OneToMany(mappedBy = "followerUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserFollower> following = new HashSet<>();
 }

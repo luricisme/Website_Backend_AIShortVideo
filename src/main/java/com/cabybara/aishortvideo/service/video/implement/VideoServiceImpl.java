@@ -10,6 +10,7 @@ import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
 import com.cabybara.aishortvideo.repository.*;
 import com.cabybara.aishortvideo.service.video.VideoService;
+import com.cabybara.aishortvideo.utils.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -227,7 +228,7 @@ public class VideoServiceImpl implements VideoService {
 
     private User getUserById(Long userId) {
         System.out.println("TOI DANG KIEM USER VOI ID = " + userId);
-        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private CommentedVideo getCommentById(Long commentId) {
