@@ -8,6 +8,9 @@ import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface UserService extends UserDetailsService  {
     RegisterResponseDTO addUser(RegisterRequestDTO registerRequestDTO);
@@ -19,4 +22,6 @@ public interface UserService extends UserDetailsService  {
     void deleteUser(Long id);
 
     User findOrCreateGoogleUser(GoogleUserInfoDTO userInfo, GoogleTokenResponseDTO tokenResponse);
+
+    String updateAvatar(MultipartFile avatar, Long userId) throws IOException;
 }

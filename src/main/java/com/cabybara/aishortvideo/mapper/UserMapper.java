@@ -2,6 +2,7 @@ package com.cabybara.aishortvideo.mapper;
 
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
@@ -26,27 +27,33 @@ public interface UserMapper {
     UserDTO toUserDTO(User user);
 
     @Named("setUserFollowerToString")
-    static Set<UserFollowerDTO> setUserFollowerToString(Set<UserFollower> followers) {
-        if (followers == null) {
-            return Collections.emptySet();
-        }
-
-        return followers.stream()
+    static PageResponseDetail<?> setUserFollowerToString(Set<UserFollower> followers) {
+        Set<UserFollowerDTO> userFollowerDTOS = followers.stream()
                 .map(UserFollower::getFollowerUser)
                 .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
+
+        return PageResponseDetail.builder()
+                .pageNo(0)
+                .pageSize(5)
+                .totalPage(userFollowerDTOS.size() / 5)
+                .totalElements((long) userFollowerDTOS.size())
+                .build();
     }
 
     @Named("setUserFollowingToString")
-    static Set<UserFollowerDTO> setUserFollowingToString(Set<UserFollower> following) {
-        if (following == null) {
-            return Collections.emptySet();
-        }
-
-        return following.stream()
+    static PageResponseDetail<?> setUserFollowingToString(Set<UserFollower> following) {
+        Set<UserFollowerDTO> userFollowingDTOS = following.stream()
                 .map(UserFollower::getFollowingUser)
                 .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
+
+        return PageResponseDetail.builder()
+                .pageNo(0)
+                .pageSize(5)
+                .totalPage(userFollowingDTOS.size() / 5)
+                .totalElements((long) userFollowingDTOS.size())
+                .build();
     }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

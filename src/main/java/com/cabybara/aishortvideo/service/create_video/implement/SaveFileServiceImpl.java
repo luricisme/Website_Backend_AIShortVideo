@@ -32,4 +32,11 @@ public class SaveFileServiceImpl implements SaveFileService {
                 .fileURL(fileURL)
                 .build();
     }
+
+    @Override
+    public String uploadAvatar(MultipartFile file, Long userId, String type) throws IOException {
+        String filename = "avatar_" + userId;
+
+        return cloudinaryService.uploadMultipartFile(file, filename, "avatar");
+    }
 }

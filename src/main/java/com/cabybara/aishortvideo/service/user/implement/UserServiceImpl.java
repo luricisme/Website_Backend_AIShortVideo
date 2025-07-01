@@ -4,6 +4,7 @@ import com.cabybara.aishortvideo.dto.auth.GoogleTokenResponseDTO;
 import com.cabybara.aishortvideo.dto.auth.GoogleUserInfoDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
@@ -15,6 +16,7 @@ import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.model.UserFollower;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
+import com.cabybara.aishortvideo.service.create_video.SaveFileService;
 import com.cabybara.aishortvideo.service.user.UserService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
 import com.cabybara.aishortvideo.utils.UserRole;
@@ -23,11 +25,17 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,19 +49,22 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserFollowerRepository userFollowerRepository;
+    private final SaveFileService saveFileService;
 
     public UserServiceImpl(
             UserRepository userRepository,
             UserSocialAccountService userSocialAccountService,
             PasswordEncoder passwordEncoder,
             UserMapper userMapper,
-            UserFollowerRepository userFollowerRepository
+            UserFollowerRepository userFollowerRepository,
+            SaveFileService saveFileService
     ) {
         this.userRepository = userRepository;
         this.userSocialAccountService = userSocialAccountService;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.userFollowerRepository = userFollowerRepository;
+        this.saveFileService = saveFileService;
     }
 
     @Override
@@ -86,18 +97,39 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO loadUserById(Long id) {
+        int page = 0;
+        int pageSize = 5;
         User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         UserDTO userDTO = userMapper.toUserDTO(user);
-        Set<User> followers = userFollowerRepository.findAllUsersFollowingMe(id);
-        Set<User> followings = userFollowerRepository.findAllUsersIFollow(id);
-        userDTO.setFollowers(followers.stream()
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+        Page<User> followers = userFollowerRepository.findAllUsersFollowingMe(id, pageable);
+        Page<User> followings = userFollowerRepository.findAllUsersIFollow(id, pageable);
+
+        Set<UserFollowerDTO> userFollowerDTOS =  followers.stream()
                 .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
-                .collect(Collectors.toSet()));
-        userDTO.setFollowings(followings.stream()
+                .collect(Collectors.toSet());
+
+        Set<UserFollowerDTO> userFollowingDTOS =  followings.stream()
                 .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toSet());
+
+        userDTO.setFollowers(PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(followers.getTotalPages())
+                .totalElements(followers.getTotalElements())
+                .items(userFollowerDTOS)
+                .build());
+        userDTO.setFollowings(PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(followings.getTotalPages())
+                .totalElements(followings.getTotalElements())
+                .items(userFollowerDTOS)
+                .build());
 
         return userDTO;
     }
@@ -156,5 +188,17 @@ public class UserServiceImpl implements UserService {
         );
 
         return user;
+    }
+
+    @Override
+    public String updateAvatar(MultipartFile avatar, Long userId) throws IOException {
+        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String fileUrl = saveFileService.uploadAvatar(avatar, userId, "avatar");
+        user.setAvatar(fileUrl);
+        userRepository.save(user);
+
+        return fileUrl;
     }
 }
