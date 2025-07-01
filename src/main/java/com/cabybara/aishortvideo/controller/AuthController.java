@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -65,9 +66,11 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public ResponseData<RegisterResponseDTO> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
+    public ResponseEntity<ResponseData<RegisterResponseDTO>> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
         RegisterResponseDTO user = userService.addUser(registerRequestDTO);
-        return new ResponseData<>(HttpStatus.OK, "Register successfully", user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Register successfully", user));
     }
 
     @PostMapping("/login")
@@ -83,15 +86,19 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
             )
     })
-    public ResponseData<LoginResponseDTO> authenticateUser(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<ResponseData<LoginResponseDTO>> authenticateUser(@RequestBody LoginRequestDTO loginRequest) {
         Authentication authentication;
         try {
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (BadCredentialsException exception) {
-            return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Invalid email or password");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Invalid email or password"));
         } catch (AuthenticationException exception) {
-            return new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Authentication failed: " + exception.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ResponseError<>(HttpStatus.UNAUTHORIZED.value(), "Authentication failed: " + exception.getMessage()));
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -111,7 +118,9 @@ public class AuthController {
                 .id(userDetail.getId())
                 .build();
 
-        return new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response));
     }
 
     @PostMapping("/logout")
@@ -127,22 +136,28 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
             )
     })
-    public ResponseData<String> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<ResponseData<String>> logout(@RequestHeader("Authorization") String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             long now = System.currentTimeMillis();
             long expirationTime = jwtService.extractExpiration(token).getTime();
             long ttl = (expirationTime - now) / 1000;
             jwtService.backlistToken(token, ttl);
-            return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
         }
-        return new ResponseError(HttpStatus.BAD_REQUEST, "Invalid token");
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ResponseError(HttpStatus.BAD_REQUEST, "Invalid token"));
     }
 
     @PostMapping("/oauth/google")
-    public ResponseData<LoginResponseDTO> loginWithGoogle(@RequestBody SocialAccountRegisterDTO socialAccountRegisterDTO) {
+    public ResponseEntity<ResponseData<LoginResponseDTO>> loginWithGoogle(@RequestBody SocialAccountRegisterDTO socialAccountRegisterDTO) {
         LoginResponseDTO loginResponseDTO = googleOauthService.authenticateWithGoogle(socialAccountRegisterDTO.getAuthorizeCode());
-        return new ResponseData<>(HttpStatus.OK, "Successfully", loginResponseDTO);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", loginResponseDTO));
     }
 
     @PreAuthorize("hasRole('USER')")

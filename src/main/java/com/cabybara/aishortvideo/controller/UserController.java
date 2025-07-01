@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +44,11 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public ResponseData<UserDTO> getUser(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseData<UserDTO>> getUser(@PathVariable("id") Long id) {
         UserDTO userDTO = userService.loadUserById(id);
-        return new ResponseData<>(HttpStatus.OK, "Successfully", userDTO);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", userDTO));
     }
 
     @PutMapping("/{id}")
@@ -61,9 +64,18 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public ResponseData<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
+    public ResponseEntity<ResponseData<UserDTO>> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UpdateUserDTO updateUserDTO) {
         UserDTO updatedUserDTO = userService.updateUser(id, updateUserDTO);
-        return new ResponseData<>(HttpStatus.OK, "Successfully", updatedUserDTO);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", updatedUserDTO));
+    }
+
+    @PostMapping("/follower")
+    public ResponseEntity<ResponseData<String>> addUserFollower() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -80,8 +92,10 @@ public class UserController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
             )
     })
-    public ResponseData<String> deleteUser(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseData<String>> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
-        return new ResponseData<>(HttpStatus.OK, "Successfully", null);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
     }
 }

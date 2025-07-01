@@ -2,7 +2,7 @@ package com.cabybara.aishortvideo.dto.response;
 
 import org.springframework.http.HttpStatus;
 
-public class ResponseError<T> extends ResponseData {
+public class ResponseError<T> extends ResponseData<T> {
     public ResponseError(HttpStatus status, String message) {
         super(status.value(), message);
     }
