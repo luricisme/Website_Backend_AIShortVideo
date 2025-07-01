@@ -7,4 +7,6 @@ import java.io.IOException;
 
 public interface SaveFileService {
     public SaveFileResponseDTO saveFile(MultipartFile file, String type) throws IOException;
+
+    String uploadAvatar(MultipartFile file, Long userId, String type) throws IOException;
 }

@@ -15,6 +15,7 @@ import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.model.UserFollower;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
+import com.cabybara.aishortvideo.service.create_video.SaveFileService;
 import com.cabybara.aishortvideo.service.user.UserService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
 import com.cabybara.aishortvideo.utils.UserRole;
@@ -27,7 +28,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,19 +44,22 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserFollowerRepository userFollowerRepository;
+    private final SaveFileService saveFileService;
 
     public UserServiceImpl(
             UserRepository userRepository,
             UserSocialAccountService userSocialAccountService,
             PasswordEncoder passwordEncoder,
             UserMapper userMapper,
-            UserFollowerRepository userFollowerRepository
+            UserFollowerRepository userFollowerRepository,
+            SaveFileService saveFileService
     ) {
         this.userRepository = userRepository;
         this.userSocialAccountService = userSocialAccountService;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.userFollowerRepository = userFollowerRepository;
+        this.saveFileService = saveFileService;
     }
 
     @Override
@@ -156,5 +162,17 @@ public class UserServiceImpl implements UserService {
         );
 
         return user;
+    }
+
+    @Override
+    public String updateAvatar(MultipartFile avatar, Long userId) throws IOException {
+        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        String fileUrl = saveFileService.uploadAvatar(avatar, userId, "avatar");
+        user.setAvatar(fileUrl);
+        userRepository.save(user);
+
+        return fileUrl;
     }
 }

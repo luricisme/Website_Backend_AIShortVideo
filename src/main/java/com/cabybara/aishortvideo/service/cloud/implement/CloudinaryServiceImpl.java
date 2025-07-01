@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.cloud.implement;
 
+import com.cabybara.aishortvideo.exception.UploadFileException;
 import com.cabybara.aishortvideo.service.cloud.CloudinaryService;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -17,6 +18,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
 
+    private final String TEMP_AVATAR_FOLDER = "Website_AIShortVideoEditor/avatar_temp";
     private final String TEMP_PHOTO_FOLDER = "Website_AIShortVideoEditor/photos_temp";
     private final String TEMP_AUDIO_FOLDER = "Website_AIShortVideoEditor/audio_temp";
 
@@ -29,22 +31,46 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     public String uploadMultipartFile(MultipartFile file, String fileName, String type) throws IOException {
         log.info("Upload multipart files");
         String folder = "";
-        if("image".equals(type)){
-            folder = TEMP_PHOTO_FOLDER;
-        } else if("raw".equals(type)){
-            folder = TEMP_AUDIO_FOLDER;
-        } else if("video".equals(type)){
-            folder = VIDEO_FOLDER;
+        switch(type) {
+            case "image", "raw" -> {
+                folder = TEMP_PHOTO_FOLDER;
+            }
+            case "video" -> {
+                folder = VIDEO_FOLDER;
+            }
+            case "avatar" -> {
+                type = "image";
+                folder = TEMP_AVATAR_FOLDER;
+            }
+            default -> {
+                log.warn("Unsupported file type provided: {}", type);
+                folder = "undefined";
+            }
         }
 
-        Map<?, ?> result = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap(
-                        "public_id", folder + "/" + fileName,
-                        "resource_type", type,
-                        "folder", folder
-                )
-        );
+//        if("image".equals(type)){
+//            folder = TEMP_PHOTO_FOLDER;
+//        } else if("raw".equals(type)){
+//            folder = TEMP_AUDIO_FOLDER;
+//        } else if("video".equals(type)){
+//            folder = VIDEO_FOLDER;
+//        }
+        Map<?, ?> result;
+
+        try {
+            result = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "public_id", folder + "/" + fileName,
+                            "resource_type", type,
+                            "folder", folder,
+                            "overwrite", true,
+                            "invalidate", true
+                    )
+            );
+        } catch (RuntimeException e) {
+            throw new UploadFileException(e.getMessage());
+        }
         return result.get("secure_url").toString();
     }
 

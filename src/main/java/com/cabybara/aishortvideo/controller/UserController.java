@@ -23,7 +23,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -81,6 +83,19 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseData<>(HttpStatus.OK, "Successfully", updatedUserDTO));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/avatar")
+    public ResponseEntity<ResponseData<String>> updateAvatar(
+            @RequestParam("avatar")MultipartFile avatar,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) throws IOException {
+        String avatarUrl = userService.updateAvatar(avatar, userDetail.getId());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", avatarUrl));
     }
 
     @GetMapping("{id}/follower")
