@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "users", key = "#id")
     @Override
     public void deleteUser(Long id) {
-        User existedUser = userRepository.findById(id)
+        User existedUser = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         existedUser.setStatus(UserStatus.DELETED);
@@ -117,6 +117,8 @@ public class UserServiceImpl implements UserService {
                             .role(UserRole.USER)
                             .status(UserStatus.ACTIVE)
                             .avatar(userInfo.getPicture())
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
                             .build();
 
                     return userRepository.save(newUser);
