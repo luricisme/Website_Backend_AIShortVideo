@@ -4,11 +4,13 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
+import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.service.user.UserFollowerService;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -82,10 +84,13 @@ public class UserController {
     }
 
     @GetMapping("{id}/follower")
-    public ResponseEntity<ResponseData<Set<User>>> getFollowers(
+    public ResponseEntity<ResponseData<Set<UserFollowerDTO>>> getFollowers(
+            @Parameter(description = "id of user want to get follower",
+                    required = true,
+                    example = "1")
             @PathVariable("id") Long userId
     ) {
-        Set<User> followerUsers = userFollowerService.getFollowers(userId);
+        Set<UserFollowerDTO> followerUsers = userFollowerService.getFollowers(userId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -93,10 +98,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/following")
-    public ResponseEntity<ResponseData<Set<User>>> getFollowings(
+    public ResponseEntity<ResponseData<Set<UserFollowerDTO>>> getFollowings(
+            @Parameter(description = "id of user want to get following",
+                    required = true,
+                    example = "1")
             @PathVariable("id") Long userId
     ) {
-        Set<User> followingUsers = userFollowerService.getFollowing(userId);
+        Set<UserFollowerDTO> followingUsers = userFollowerService.getFollowing(userId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -106,6 +114,9 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/follow")
     public ResponseEntity<ResponseData<String>> addUserFollower(
+            @Parameter(description = "id of user want to follow",
+                    required = true,
+                    example = "1")
             @PathVariable("id") Long userId,
             @AuthenticationPrincipal UserDetail userDetail
     ) {
@@ -119,6 +130,9 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("{id}/follow")
     public ResponseEntity<ResponseData<String>> unfollowUser(
+            @Parameter(description = "id of user want to unfollow",
+                    required = true,
+                    example = "1")
             @PathVariable("id") Long userId,
             @AuthenticationPrincipal UserDetail userDetail
     ) {

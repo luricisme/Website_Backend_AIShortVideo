@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,4 +25,6 @@ public class UserDTO {
     private String instagram;
     private String tiktok;
     private String youtube;
+    private Set<UserFollowerDTO> followers;
+    private Set<UserFollowerDTO> followings;
 }

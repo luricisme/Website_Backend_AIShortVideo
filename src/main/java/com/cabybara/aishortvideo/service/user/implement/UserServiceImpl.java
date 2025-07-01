@@ -6,16 +6,20 @@ import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
+import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
 import com.cabybara.aishortvideo.exception.UserAlreadyExistsException;
 import com.cabybara.aishortvideo.exception.UserNotFoundException;
 import com.cabybara.aishortvideo.mapper.UserMapper;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
+import com.cabybara.aishortvideo.model.UserFollower;
+import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
 import com.cabybara.aishortvideo.service.user.UserService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
 import com.cabybara.aishortvideo.utils.UserRole;
 import com.cabybara.aishortvideo.utils.UserStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,6 +31,8 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -34,17 +40,20 @@ public class UserServiceImpl implements UserService {
     private final UserSocialAccountService userSocialAccountService;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final UserFollowerRepository userFollowerRepository;
 
     public UserServiceImpl(
             UserRepository userRepository,
             UserSocialAccountService userSocialAccountService,
             PasswordEncoder passwordEncoder,
-            UserMapper userMapper
+            UserMapper userMapper,
+            UserFollowerRepository userFollowerRepository
     ) {
         this.userRepository = userRepository;
         this.userSocialAccountService = userSocialAccountService;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.userFollowerRepository = userFollowerRepository;
     }
 
     @Override
@@ -73,13 +82,24 @@ public class UserServiceImpl implements UserService {
         return userMapper.toRegisterResponseDTO(user);
     }
 
-    @Cacheable(value = "user", key = "#id")
+    @Cacheable(value = "users", key = "#id")
     @Override
+    @Transactional
     public UserDTO loadUserById(Long id) {
         User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
-        return userMapper.toUserDTO(user);
+        UserDTO userDTO = userMapper.toUserDTO(user);
+        Set<User> followers = userFollowerRepository.findAllUsersFollowingMe(id);
+        Set<User> followings = userFollowerRepository.findAllUsersIFollow(id);
+        userDTO.setFollowers(followers.stream()
+                .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
+                .collect(Collectors.toSet()));
+        userDTO.setFollowings(followings.stream()
+                .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
+                .collect(Collectors.toSet()));
+
+        return userDTO;
     }
 
     @CachePut(value = "users", key = "#id")

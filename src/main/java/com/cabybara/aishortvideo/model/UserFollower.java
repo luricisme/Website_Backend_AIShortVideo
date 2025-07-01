@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.model;
 
 import com.cabybara.aishortvideo.model.composite_id.UserFollowerId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
