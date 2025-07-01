@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.user.implement;
 
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
 import com.cabybara.aishortvideo.exception.UserFollowerException;
 import com.cabybara.aishortvideo.exception.UserNotFoundException;
@@ -10,13 +11,15 @@ import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
 import com.cabybara.aishortvideo.service.user.UserFollowerService;
 import com.cabybara.aishortvideo.utils.UserStatus;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,7 +82,7 @@ public class UserFollowerServiceImpl implements UserFollowerService {
     }
 
     @Override
-    public Set<UserFollowerDTO> getFollowing(Long userId) {
+    public PageResponseDetail<Object> getFollowing(Long userId, int page, int pageSize) {
 //        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
 //                .orElseThrow(() -> new UserNotFoundException("User not found"));
 //
@@ -87,13 +90,29 @@ public class UserFollowerServiceImpl implements UserFollowerService {
 //                .map(UserFollower::getFollowingUser)
 //                .collect(Collectors.toSet());
 
-        return userFollowerRepository.findAllUsersIFollow(userId).stream()
+        if (page > 0) {
+            page = page - 1;
+        }
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+
+        Page<User> userFollowing = userFollowerRepository.findAllUsersIFollow(userId, pageable);
+
+        Set<UserFollowerDTO> userFollowerDTOS =  userFollowing.stream()
                 .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
+
+        return PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(userFollowing.getTotalPages())
+                .totalElements(userFollowing.getTotalElements())
+                .items(userFollowerDTOS)
+                .build();
     }
 
     @Override
-    public Set<UserFollowerDTO> getFollowers(Long userId) {
+    public PageResponseDetail<Object> getFollowers(Long userId, int page, int pageSize) {
 //        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
 //                .orElseThrow(() -> new UserNotFoundException("User not found"));
 //
@@ -101,8 +120,24 @@ public class UserFollowerServiceImpl implements UserFollowerService {
 //                .map(UserFollower::getFollowerUser)
 //                .collect(Collectors.toSet());
 
-        return userFollowerRepository.findAllUsersFollowingMe(userId).stream()
+        if (page > 0) {
+            page = page - 1;
+        }
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+
+        Page<User> userFollowers = userFollowerRepository.findAllUsersFollowingMe(userId, pageable);
+
+        Set<UserFollowerDTO> userFollowerDTOS =  userFollowers.stream()
                 .map(user -> new UserFollowerDTO(user.getId(), user.getUsername()))
                 .collect(Collectors.toSet());
+
+        return PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(userFollowers.getTotalPages())
+                .totalElements(userFollowers.getTotalElements())
+                .items(userFollowerDTOS)
+                .build();
     }
 }

@@ -1,12 +1,11 @@
 package com.cabybara.aishortvideo.controller;
 
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
-import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
-import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.service.user.UserFollowerService;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -99,13 +97,15 @@ public class UserController {
     }
 
     @GetMapping("{id}/follower")
-    public ResponseEntity<ResponseData<Set<UserFollowerDTO>>> getFollowers(
+    public ResponseEntity<ResponseData<?>> getFollowers(
             @Parameter(description = "id of user want to get follower",
                     required = true,
                     example = "1")
-            @PathVariable("id") Long userId
+            @PathVariable("id") Long userId,
+            @RequestParam("page") int page,
+            @RequestParam("pageSize") int pageSize
     ) {
-        Set<UserFollowerDTO> followerUsers = userFollowerService.getFollowers(userId);
+        PageResponseDetail<Object> followerUsers = userFollowerService.getFollowers(userId, page, pageSize);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -113,13 +113,15 @@ public class UserController {
     }
 
     @GetMapping("/{id}/following")
-    public ResponseEntity<ResponseData<Set<UserFollowerDTO>>> getFollowings(
+    public ResponseEntity<ResponseData<?>> getFollowings(
             @Parameter(description = "id of user want to get following",
                     required = true,
                     example = "1")
-            @PathVariable("id") Long userId
+            @PathVariable("id") Long userId,
+            @RequestParam("page") int page,
+            @RequestParam("pageSize") int pageSize
     ) {
-        Set<UserFollowerDTO> followingUsers = userFollowerService.getFollowing(userId);
+        PageResponseDetail<?> followingUsers = userFollowerService.getFollowing(userId, page, pageSize);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

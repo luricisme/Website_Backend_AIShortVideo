@@ -4,6 +4,7 @@ import com.cabybara.aishortvideo.dto.auth.GoogleTokenResponseDTO;
 import com.cabybara.aishortvideo.dto.auth.GoogleUserInfoDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
@@ -24,6 +25,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -92,18 +97,39 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO loadUserById(Long id) {
+        int page = 0;
+        int pageSize = 5;
         User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         UserDTO userDTO = userMapper.toUserDTO(user);
-        Set<User> followers = userFollowerRepository.findAllUsersFollowingMe(id);
-        Set<User> followings = userFollowerRepository.findAllUsersIFollow(id);
-        userDTO.setFollowers(followers.stream()
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").descending());
+        Page<User> followers = userFollowerRepository.findAllUsersFollowingMe(id, pageable);
+        Page<User> followings = userFollowerRepository.findAllUsersIFollow(id, pageable);
+
+        Set<UserFollowerDTO> userFollowerDTOS =  followers.stream()
                 .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
-                .collect(Collectors.toSet()));
-        userDTO.setFollowings(followings.stream()
+                .collect(Collectors.toSet());
+
+        Set<UserFollowerDTO> userFollowingDTOS =  followings.stream()
                 .map(u -> new UserFollowerDTO(u.getId(), u.getUsername()))
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toSet());
+
+        userDTO.setFollowers(PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(followers.getTotalPages())
+                .totalElements(followers.getTotalElements())
+                .items(userFollowerDTOS)
+                .build());
+        userDTO.setFollowings(PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(followings.getTotalPages())
+                .totalElements(followings.getTotalElements())
+                .items(userFollowerDTOS)
+                .build());
 
         return userDTO;
     }

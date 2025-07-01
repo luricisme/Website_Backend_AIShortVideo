@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.dto.user;
 
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.utils.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,6 @@ public class UserDTO {
     private String instagram;
     private String tiktok;
     private String youtube;
-    private Set<UserFollowerDTO> followers;
-    private Set<UserFollowerDTO> followings;
+    private PageResponseDetail<?> followers;
+    private PageResponseDetail<?> followings;
 }
