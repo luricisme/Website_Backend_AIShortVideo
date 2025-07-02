@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
                 .pageSize(pageSize)
                 .totalPage(followings.getTotalPages())
                 .totalElements(followings.getTotalElements())
-                .items(userFollowerDTOS)
+                .items(userFollowingDTOS)
                 .build());
 
         return userDTO;

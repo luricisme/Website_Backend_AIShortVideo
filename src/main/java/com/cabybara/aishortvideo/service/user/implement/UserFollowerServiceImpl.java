@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,5 +140,10 @@ public class UserFollowerServiceImpl implements UserFollowerService {
                 .totalElements(userFollowers.getTotalElements())
                 .items(userFollowerDTOS)
                 .build();
+    }
+
+    @Override
+    public Boolean isFollowing(Long followerId, Long followingUserId) {
+        return userFollowerRepository.existsById(new UserFollowerId(followerId, followingUserId));
     }
 }

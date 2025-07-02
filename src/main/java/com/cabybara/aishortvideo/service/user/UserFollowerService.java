@@ -10,4 +10,6 @@ public interface UserFollowerService {
     void unfollow(Long userId, Long followerId);
     PageResponseDetail<Object> getFollowing(Long userId, int page, int pageSize);
     PageResponseDetail<Object> getFollowers(Long userId, int page, int pageSize);
+
+    Boolean isFollowing(Long followerId, Long followingUserId);
 }

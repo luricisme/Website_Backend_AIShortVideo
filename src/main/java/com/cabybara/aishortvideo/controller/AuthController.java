@@ -8,6 +8,7 @@ import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.service.auth.implement.GoogleOauthServiceImpl;
 import com.cabybara.aishortvideo.service.auth.implement.JwtServiceImpl;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
+import com.google.api.client.auth.oauth2.BearerToken;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -86,7 +87,8 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseError.class))
             )
     })
-    public ResponseEntity<ResponseData<LoginResponseDTO>> authenticateUser(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<ResponseData<LoginResponseDTO>> authenticateUser(
+            @RequestBody LoginRequestDTO loginRequest) {
         Authentication authentication;
         try {
             authentication = authenticationManager
