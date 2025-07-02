@@ -72,6 +72,19 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(UserFollowerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserFollowerException(UserFollowerException ex, WebRequest request) {
+        log.error("=================== handleUserNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(ex.getStatus().value())
+                .message(ex.getMessage())
+                .error("Bad request")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
     @ExceptionHandler(UploadFileException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUploadFileException(UploadFileException ex, WebRequest request) {
