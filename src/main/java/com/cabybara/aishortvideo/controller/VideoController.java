@@ -136,11 +136,11 @@ public class VideoController {
 
     @Operation(method = "POST", summary = "Comment video", description = "Comment video (Login first)")
     @PostMapping(value = "/comment")
-    public ResponseData<Long> saveComment(@Valid @RequestBody SaveCommentRequestDTO request) {
-        log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
+    public ResponseData<GetAllCommentsForVideoResponseDTO> saveComment(@Valid @RequestBody SaveCommentRequestDTO request) {
+//        log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
         try {
-            videoService.saveComment(request);
-            return new ResponseData<>(HttpStatus.CREATED.value(), "Comment video successfully");
+            GetAllCommentsForVideoResponseDTO comment = videoService.saveComment(request);
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Comment video successfully", comment);
         } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Comment video fail");
