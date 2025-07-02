@@ -122,7 +122,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Long saveComment(SaveCommentRequestDTO request) {
+    public GetAllCommentsForVideoResponseDTO saveComment(SaveCommentRequestDTO request) {
         User user = getUserById(request.getUserId());
         Video video = getVideoById(request.getVideoId());
 
@@ -132,7 +132,8 @@ public class VideoServiceImpl implements VideoService {
                 .content(request.getContent())
                 .build();
         commentRepository.save(comment);
-        return comment.getId();
+
+        return commentRepository.getAllComments(video.getId()).getFirst();
     }
 
     @Override

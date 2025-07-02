@@ -26,7 +26,7 @@ public interface VideoService {
 
     public CountForVideoResponseDTO countForVideo(Long videoId);
 
-    public Long saveComment(SaveCommentRequestDTO request);
+    public GetAllCommentsForVideoResponseDTO saveComment(SaveCommentRequestDTO request);
 
     public PageResponse<?> getAllComments(Long videoId);
 
