@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collections;

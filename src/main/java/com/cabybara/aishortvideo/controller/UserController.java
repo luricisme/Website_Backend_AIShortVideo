@@ -160,6 +160,22 @@ public class UserController {
                 .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{id}/is-following")
+    public ResponseEntity<ResponseData<Boolean>> isFollowing(
+            @Parameter(description = "Id of the user to check follow status",
+                    required = true,
+                    example = "1")
+            @PathVariable("id") Long userId,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) {
+        Boolean isFollowing = userFollowerService.isFollowing(userDetail.getId(), userId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", isFollowing));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ApiResponses(value = {
