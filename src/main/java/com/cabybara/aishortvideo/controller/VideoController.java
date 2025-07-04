@@ -220,4 +220,13 @@ public class VideoController {
         log.info("Get videos by tag name");
         return new ResponseData<>(HttpStatus.OK.value(), "Get videos by tag name", videoService.getVideoByTagName(pageNo, pageSize, tagName));
     }
+
+    @Operation(method = "GET", summary = "Get trending video in this month", description = "Get trending video in this month")
+    @GetMapping(value = "/trending-month")
+    public ResponseData<?> getTrendingMonthVideo(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(1) @RequestParam(defaultValue = "10", required = false) int pageSize) {
+        log.info("Get trending video in this month");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get trending video in this month", videoService.getTrendingMonthVideo(pageNo, pageSize));
+    }
 }

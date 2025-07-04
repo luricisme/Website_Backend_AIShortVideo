@@ -222,6 +222,26 @@ public class VideoServiceImpl implements VideoService {
                 .build();
     }
 
+    @Override
+    public PageResponseDetail<?> getTrendingMonthVideo(int pageNo, int pageSize) {
+        int page = 0;
+        if(pageNo > 0){
+            page = pageNo - 1;
+        }
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<Video> videos = videoRepository.findTrendingMonthVideo(pageable);
+        List<VideoDetailResponseDTO> videoDTOs = videos.stream()
+                .map(videoMapper::toDto)
+                .toList();
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(videos.getTotalPages())
+                .totalElements(videos.getTotalElements())
+                .items(videoDTOs)
+                .build();
+    }
+
     private Video getVideoById(Long videoId) {
         System.out.println("TOI DANG KIEM VIDEO VOI ID = " + videoId);
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));

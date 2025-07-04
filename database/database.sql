@@ -206,3 +206,25 @@ VALUES (1, 4);
 INSERT INTO commented_video (id_video, id_user, content)
 VALUES (4, 1, 'This video is hilarious!');
 
+-- Insert test trending month videos
+INSERT INTO videos (title, category, style, target, script, audio_url, video_url,
+                    like_cnt, dislike_cnt, comment_cnt, view_cnt, length, thumbnail,
+                    status, created_at, updated_at, id_user)
+VALUES
+    ('How to Cook Pasta', 'Food', 'Tutorial', 'Beginner', 'Step by step pasta guide',
+     'audio1.mp3', 'video1.mp4', 120, 3, 10, 5000, 3.5, 'thumb1.jpg',
+     'PUBLISHED', CURRENT_DATE - INTERVAL '2 days', CURRENT_TIMESTAMP, 1),
+
+    ('Workout Routine', 'Fitness', 'Vlog', 'Everyone', 'A quick workout video',
+     'audio2.mp3', 'video2.mp4', 300, 5, 20, 15000, 8.0, 'thumb2.jpg',
+     'PUBLISHED', CURRENT_DATE - INTERVAL '10 days', CURRENT_TIMESTAMP, 2),
+
+-- Video PUBLISHED nhưng tháng trước
+    ('Old Travel Vlog', 'Travel', 'Vlog', 'Everyone', 'Trip to Da Nang',
+     'audio3.mp3', 'video3.mp4', 200, 2, 5, 8000, 6.0, 'thumb3.jpg',
+     'PUBLISHED', CURRENT_DATE - INTERVAL '40 days', CURRENT_TIMESTAMP, 1),
+
+-- Video DRAFT trong tháng này (không nên hiển thị)
+    ('Unfinished Project', 'Tech', 'Review', 'Advanced', 'Prototype demo',
+     'audio4.mp3', 'video4.mp4', 0, 0, 0, 100, 2.0, 'thumb4.jpg',
+     'DRAFT', CURRENT_DATE - INTERVAL '1 day', CURRENT_TIMESTAMP, 2);
