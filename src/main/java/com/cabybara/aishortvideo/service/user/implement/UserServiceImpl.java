@@ -190,6 +190,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @CachePut(value = "users", key = "#userId")
     @Override
     public String updateAvatar(MultipartFile avatar, Long userId) throws IOException {
         User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
