@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyException(UserAlreadyExistsException e, WebRequest request) {
-        log.error("=================== handleUserException ===================");
+        log.error("=================== handleUserAlreadyException ===================");
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.CONFLICT.value())
@@ -72,15 +72,41 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(UserSocialAccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserSocialAccountNotFoundException(UserSocialAccountNotFoundException ex, WebRequest request) {
+        log.error("=================== handleUserSocialAccountNotFoundException ===================", ex.getMessage());
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
     @ExceptionHandler(UploadFileException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUploadFileException(UploadFileException ex, WebRequest request) {
-        log.error("=================== handleUserNotFoundException ===================", ex);
+        log.error("=================== handleUploadFileException ===================", ex);
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .error("Bad request")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(VideoNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleVideoNotFoundException(VideoNotFoundException ex, WebRequest request) {
+        log.error("=================== handleVideoNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }

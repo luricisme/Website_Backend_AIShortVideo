@@ -4,6 +4,7 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
 import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoStatistics;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -71,13 +72,13 @@ public class PublishVideoController {
     }
 
     @GetMapping("/youtube/statistic")
-    public ResponseEntity<ResponseData<Video>> getStatistic(
+    public ResponseEntity<ResponseData<VideoStatistics>> getStatistic(
             @RequestParam("userId") Long userId,
             @RequestParam("videoId") String videoId
     ) throws Exception {
         Video updatedVideo = youtubeApiService.getVideoStatistics(userId, videoId);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(new ResponseData<>(HttpStatus.OK, "Successfully", updatedVideo));
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", updatedVideo.getStatistics()));
     }
 }
