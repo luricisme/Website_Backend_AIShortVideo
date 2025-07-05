@@ -5,8 +5,12 @@ import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.exception.ErrorResponse;
 import com.cabybara.aishortvideo.model.UserDetail;
+import com.cabybara.aishortvideo.service.auth.GoogleOauthService;
+import com.cabybara.aishortvideo.service.auth.JwtService;
+import com.cabybara.aishortvideo.service.auth.TiktokOauthService;
 import com.cabybara.aishortvideo.service.auth.implement.GoogleOauthServiceImpl;
 import com.cabybara.aishortvideo.service.auth.implement.JwtServiceImpl;
+import com.cabybara.aishortvideo.service.user.UserService;
 import com.cabybara.aishortvideo.service.user.implement.UserServiceImpl;
 import com.google.api.client.auth.oauth2.BearerToken;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +26,7 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,21 +37,24 @@ import reactor.core.publisher.Mono;
 @Validated
 @Tag(name = "Auth Apis")
 public class AuthController {
-    private final UserServiceImpl userService;
-    private final JwtServiceImpl jwtService;
+    private final UserService userService;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final GoogleOauthServiceImpl googleOauthService;
+    private final GoogleOauthService googleOauthService;
+    private final TiktokOauthService tiktokOauthService;
 
     public AuthController(
-            UserServiceImpl userService,
-            JwtServiceImpl jwtService,
+            UserService userService,
+            JwtService jwtService,
             AuthenticationManager authenticationManager,
-            GoogleOauthServiceImpl googleOauthService
+            GoogleOauthService googleOauthService,
+            TiktokOauthService tiktokOauthService
     ) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.googleOauthService = googleOauthService;
+        this.tiktokOauthService = tiktokOauthService;
     }
 
     @PostMapping("/register")
@@ -160,6 +168,18 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseData<>(HttpStatus.OK, "Successfully", loginResponseDTO));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/oauth/tiktok")
+    public ResponseEntity<ResponseData<Boolean>> loginWithTiktok(
+            @RequestBody SocialAccountRegisterDTO socialAccountRegisterDTO,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) {
+        Boolean isAuthenticated = tiktokOauthService.authenticateWithTiktok(socialAccountRegisterDTO.getAuthorizeCode(), userDetail.getId());
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
     }
 
     @PreAuthorize("hasRole('USER')")

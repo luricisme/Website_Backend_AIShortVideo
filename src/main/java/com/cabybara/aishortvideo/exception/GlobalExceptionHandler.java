@@ -110,4 +110,17 @@ public class GlobalExceptionHandler {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }
+
+    @ExceptionHandler(TiktokApiException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleTiktokApiException(TiktokApiException ex, WebRequest request) {
+        log.error("=================== handleTiktokApiException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
 }

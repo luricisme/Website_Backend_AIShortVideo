@@ -134,6 +134,7 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         Video responseVideo = request.execute();
         PublishedVideo publishedVideo = publishedVideoMapper.toPublishedVideoFromYoutubeVideo(responseVideo);
         publishedVideo.setUploadedBy(userId);
+        publishedVideo.setPlatform("google");
         publishedVideoService.savePublishedVideo(publishedVideo);
 
         return responseVideo;
@@ -171,6 +172,7 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         Video responseVideo = request.execute();
         PublishedVideo publishedVideo = publishedVideoMapper.toPublishedVideoFromYoutubeVideo(responseVideo);
         publishedVideo.setUploadedBy(userId);
+        publishedVideo.setPlatform("google");
         publishedVideoService.savePublishedVideo(publishedVideo);
         return responseVideo;
     }
@@ -190,7 +192,11 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
             if (videoListResponse.getItems() == null || videoListResponse.getItems().isEmpty()) {
                 throw new VideoNotFoundException("Video not found");
             }
-            return videoListResponse.getItems().getFirst();
+
+            Video responseVideo = videoListResponse.getItems().getFirst();
+            publishedVideoService.updatePublishedVideo(videoId, responseVideo);
+
+            return responseVideo;
         } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
             if (e.getStatusCode() == 400) {
                 throw new VideoNotFoundException("Bad request or video not found: " + e.getDetails().getMessage());

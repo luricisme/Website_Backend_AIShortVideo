@@ -4,6 +4,9 @@ import com.cabybara.aishortvideo.dto.auth.GoogleTokenResponseDTO;
 import com.cabybara.aishortvideo.dto.auth.GoogleUserInfoDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokTokenResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokUserDTO;
+import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokUserInfoDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
@@ -14,6 +17,7 @@ import com.cabybara.aishortvideo.mapper.UserMapper;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.model.UserFollower;
+import com.cabybara.aishortvideo.model.UserSocialAccount;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
 import com.cabybara.aishortvideo.service.create_video.SaveFileService;
@@ -185,6 +189,43 @@ public class UserServiceImpl implements UserService {
                 Instant.now().plusSeconds(Long.parseLong(tokenResponse.getExpires_in())),
                 tokenResponse.getScope(),
                 tokenResponse.getToken_type()
+        );
+
+        return user;
+    }
+
+    @Override
+    public User updateOrCreateTiktokToken(Long userId, TiktokTokenResponseDTO tokenResponse) {
+        User user = userRepository.getReferenceById(userId);
+
+        userSocialAccountService.saveUpdateSocialAccount(
+                user,
+                "tiktok",
+                tokenResponse.getOpenId(),
+                tokenResponse.getAccessToken(),
+                tokenResponse.getRefreshToken(),
+                Instant.now().plusSeconds(tokenResponse.getExpiresIn()),
+                tokenResponse.getScope(),
+                tokenResponse.getTokenType()
+        );
+
+        return user;
+    }
+
+    @Override
+    public User createTiktokUser(Long userId, TiktokUserDTO userDTO, TiktokTokenResponseDTO tokenResponse) {
+        User user = userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        userSocialAccountService.saveUpdateSocialAccount(
+                user,
+                "tiktok",
+                userDTO.getOpen_id(),
+                tokenResponse.getAccessToken(),
+                tokenResponse.getRefreshToken(),
+                Instant.now().plusSeconds(tokenResponse.getExpiresIn()),
+                tokenResponse.getScope(),
+                tokenResponse.getTokenType()
         );
 
         return user;

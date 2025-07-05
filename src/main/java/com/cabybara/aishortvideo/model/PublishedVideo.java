@@ -58,4 +58,6 @@ public class PublishedVideo {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated = LocalDateTime.now();
 
+    @Column(name = "platform")
+    private String platform;
 }

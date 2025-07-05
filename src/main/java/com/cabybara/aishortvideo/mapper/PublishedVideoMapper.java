@@ -31,6 +31,7 @@ public interface PublishedVideoMapper {
     @Mapping(target = "uploadedBy", ignore = true)
     @Mapping(target = "uploadDate", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "platform", ignore = true)
     PublishedVideo toPublishedVideoFromYoutubeVideo(Video video);
 
     default LocalDateTime mapPublishedAt(DateTime publishedAt) {
