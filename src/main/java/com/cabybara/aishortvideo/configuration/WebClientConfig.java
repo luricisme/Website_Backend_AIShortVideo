@@ -24,4 +24,20 @@ public class WebClientConfig {
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
     }
+
+    @Bean
+    public WebClient tiktokApiWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://open.tiktokapis.com/v2")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+    @Bean
+    public WebClient tiktokOAuthWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://open.tiktokapis.com/v2/oauth")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .build();
+    }
 }

@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.service.user.implement;
 
+import com.cabybara.aishortvideo.exception.UserSocialAccountNotFoundException;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserSocialAccount;
 import com.cabybara.aishortvideo.repository.UserRepository;
@@ -7,7 +8,6 @@ import com.cabybara.aishortvideo.repository.UserSocialAccountRepository;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.Instant;
 
 @Service
@@ -67,6 +67,9 @@ public class UserSocialAccountServiceImpl implements UserSocialAccountService {
     @Override
     public UserSocialAccount getUserSocialAccount(Long userId, String platform) {
         User user = userRepository.getReferenceById(userId);
-        return userSocialAccountRepository.findByUserAndPlatform(user, platform).get();
+        return userSocialAccountRepository.findByUserAndPlatform(user, platform)
+                .orElseThrow(
+                        () -> new UserSocialAccountNotFoundException("Social account not found! Please login with google to upload video")
+                );
     }
 }
