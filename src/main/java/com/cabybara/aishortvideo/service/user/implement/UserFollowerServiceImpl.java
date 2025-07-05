@@ -51,7 +51,7 @@ public class UserFollowerServiceImpl implements UserFollowerService {
         User followerUser = userRepository.findByIdAndStatus(followerId, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("Follower user not found"));
 
-        UserFollowerId userFollowerId = new UserFollowerId(userId, followerId);
+        UserFollowerId userFollowerId = new UserFollowerId(followerId, userId);
         if (userFollowerRepository.existsById(userFollowerId)) {
             throw new UserFollowerException(HttpStatus.CONFLICT, "User is already followed");
         }

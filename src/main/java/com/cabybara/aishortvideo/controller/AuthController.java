@@ -133,6 +133,7 @@ public class AuthController {
                 .body(new ResponseData<LoginResponseDTO>(HttpStatus.OK, "Successfully", response));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     @ApiResponses(value = {
             @ApiResponse(

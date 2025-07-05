@@ -194,6 +194,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @CachePut(value = "users", key = "#userId")
     @Override
     public User updateOrCreateTiktokToken(Long userId, TiktokTokenResponseDTO tokenResponse) {
         User user = userRepository.getReferenceById(userId);
