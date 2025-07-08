@@ -57,4 +57,14 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                 WHERE t.id.tagName = :tagName AND v.status = 'PUBLISHED'
             """)
     Page<Video> findVideoByTagName(@Param("tagName") String tagName, Pageable pageable);
+
+    @Query("""
+                SELECT v
+                FROM Video v
+                WHERE v.status = 'PUBLISHED'
+                    AND EXTRACT(MONTH FROM v.createdAt) = EXTRACT(MONTH FROM CURRENT_DATE)
+                    AND EXTRACT(YEAR FROM v.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE)
+                ORDER BY v.viewCnt DESC, v.createdAt DESC
+            """)
+    Page<Video> findTrendingMonthVideo(Pageable pageable);
 }

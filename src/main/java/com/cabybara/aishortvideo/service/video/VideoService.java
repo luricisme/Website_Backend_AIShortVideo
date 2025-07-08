@@ -44,4 +44,8 @@ public interface VideoService {
     public PageResponseDetail<?> getVideoByCategory(int pageNo, int pageSize, String category);
 
     public PageResponseDetail<?> getVideoByTagName(int pageNo, int pageSize, String tagName);
+
+    public PageResponseDetail<?> getTrendingMonthVideo(int pageNo, int pageSize);
+
+    public PageResponseDetail<?> searchVideo(int pageNo, int pageSize, String... search);
 }
