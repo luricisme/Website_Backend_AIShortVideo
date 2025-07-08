@@ -31,6 +31,7 @@ public class VideoServiceImpl implements VideoService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final VideoTagsRepository videoTagsRepository;
+    private final SearchRepository searchRepository;
     private final VideoMapper videoMapper;
 
     @Override
@@ -178,7 +179,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public PageResponseDetail<?> getVideoByCategory(int pageNo, int pageSize, String category) {
-        int page  = 0;
+        int page = 0;
         if (pageNo > 0) {
             page = pageNo - 1;
         }
@@ -202,7 +203,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public PageResponseDetail<?> getVideoByTagName(int pageNo, int pageSize, String tagName) {
         int page = 0;
-        if(pageNo > 0){
+        if (pageNo > 0) {
             page = pageNo - 1;
         }
 
@@ -225,7 +226,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public PageResponseDetail<?> getTrendingMonthVideo(int pageNo, int pageSize) {
         int page = 0;
-        if(pageNo > 0){
+        if (pageNo > 0) {
             page = pageNo - 1;
         }
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
@@ -242,18 +243,37 @@ public class VideoServiceImpl implements VideoService {
                 .build();
     }
 
+    @Override
+    public PageResponseDetail<?> searchVideo(int pageNo, int pageSize, String... search) {
+        int page = 0;
+        if (pageNo > 0) {
+            page = pageNo - 1;
+        }
+
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<Video> videos = searchRepository.advancedSearch(pageable, search);
+
+        List<VideoDetailResponseDTO> videoDTOs = videos.stream()
+                .map(videoMapper::toDto)
+                .toList();
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(videos.getTotalPages())
+                .totalElements(videos.getTotalElements())
+                .items(videoDTOs)
+                .build();
+    }
+
     private Video getVideoById(Long videoId) {
-        System.out.println("TOI DANG KIEM VIDEO VOI ID = " + videoId);
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }
 
     private User getUserById(Long userId) {
-        System.out.println("TOI DANG KIEM USER VOI ID = " + userId);
         return userRepository.findByIdAndStatus(userId, UserStatus.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     private CommentedVideo getCommentById(Long commentId) {
-        System.out.println("TOI DANG KIEM COMMENT VOI ID = " + commentId);
         return commentRepository.findById(commentId).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
     }
 
