@@ -1,7 +1,9 @@
 package com.cabybara.aishortvideo.service.video;
 
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateTitleRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.video.*;
@@ -9,6 +11,9 @@ import com.cabybara.aishortvideo.dto.response.video.*;
 import java.util.List;
 
 public interface VideoService {
+    // CREATE VIDEO
+    public void saveVideo(SaveVideoRequestDTO request);
+
     // HOME PAGE
     public PageResponse<?> getAllVideosWithRandom();
 
@@ -48,4 +53,14 @@ public interface VideoService {
     public PageResponseDetail<?> getTrendingMonthVideo(int pageNo, int pageSize);
 
     public PageResponseDetail<?> searchVideo(int pageNo, int pageSize, String... search);
+
+    // PROFILE PAGE
+    public PageResponseDetail<?> getMyVideo(int pageNo, int pageSize, Long userId);
+
+    public PageResponseDetail<?> getMyLikedVideo(int pageNo, int pageSize, Long userId);
+
+    // DASHBOARD PROFILE
+    public void updateTitle(Long videoId, UpdateTitleRequestDTO request);
+
+    public void deleteVideo(Long videoId);
 }
