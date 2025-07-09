@@ -75,4 +75,12 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                 WHERE u.id = :userId
             """)
     Page<Video> findMyVideo(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+                SELECT v
+                FROM Video v
+                JOIN v.likedUsers lu
+                WHERE lu.user.id = :userId
+            """)
+    Page<Video> findMyLikedVideos(@Param("userId") Long userId, Pageable pageable);
 }

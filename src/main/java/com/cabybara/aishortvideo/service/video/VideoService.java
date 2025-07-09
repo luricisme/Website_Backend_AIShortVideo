@@ -55,4 +55,6 @@ public interface VideoService {
 
     // PROFILE PAGE
     public PageResponseDetail<?> getMyVideo(int pageNo, int pageSize, Long userId);
+
+    public PageResponseDetail<?> getMyLikedVideo(int pageNo, int pageSize, Long userId);
 }
