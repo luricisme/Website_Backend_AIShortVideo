@@ -1,8 +1,8 @@
 spring:
   datasource:
-    password: ${POSTGRES_USERNAME}
     url: ${POSTGRES_URL}
-    username: ${POSTGRES_PASSWORD}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: none
@@ -11,7 +11,7 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-#    show-sql: true
+  #    show-sql: true
 
   security:
     jwtSecret: ${JWT_SECRET}
