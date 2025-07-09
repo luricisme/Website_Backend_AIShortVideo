@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.service.video.implement;
 
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
@@ -9,8 +10,10 @@ import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
 import com.cabybara.aishortvideo.repository.*;
+import com.cabybara.aishortvideo.service.cloud.CloudinaryService;
 import com.cabybara.aishortvideo.service.video.VideoService;
 import com.cabybara.aishortvideo.utils.UserStatus;
+import com.cabybara.aishortvideo.utils.VideoStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,8 +21,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 @Slf4j
@@ -33,6 +40,78 @@ public class VideoServiceImpl implements VideoService {
     private final VideoTagsRepository videoTagsRepository;
     private final SearchRepository searchRepository;
     private final VideoMapper videoMapper;
+
+    private final CloudinaryService cloudinaryService;
+
+    @Override
+    @Transactional
+    public void saveVideo(SaveVideoRequestDTO request) {
+        User user = getUserById(request.getUserId());
+
+        // Save the first image of list image
+        Video video = Video.builder()
+                .title(request.getTitle())
+                .category(request.getCategory())
+                .style(request.getStyle())
+                .target(request.getTarget())
+                .script(request.getScript())
+                .videoUrl(request.getVideoUrl())
+                .length(request.getLength())
+                .user(user)
+                .status(VideoStatus.PUBLISHED)
+                .build();
+
+        video = videoRepository.save(video);
+        final Video savedVideo = video;
+
+        // Save image of video
+        List<String> imageUrls = request.getImageUrls();
+        List<String> officialImageUrls = new ArrayList<>();
+        for (String url : imageUrls) {
+            System.out.println("OLD URL: " + url);
+            try {
+                String newUrl = cloudinaryService.moveFileTo(url, "image");
+                System.out.println("NEW URL: " + newUrl);
+                officialImageUrls.add(newUrl);
+            } catch (IOException e) {
+                log.error("Failed to move image from temp to official folder", e);
+            }
+        }
+        List<VideoImage> imageList = officialImageUrls.stream()
+                .map(url -> {
+                    VideoImageId id = new VideoImageId(savedVideo.getId(), url);
+                    return VideoImage.builder()
+                            .id(id)
+                            .video(savedVideo)
+                            .build();
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+        video.setImages(imageList);
+        String thumbnail = officialImageUrls.get(0);
+        video.setThumbnail(thumbnail);
+
+        // Save audio url
+        String audioUrl = request.getAudioUrl();
+        try {
+            audioUrl = cloudinaryService.moveFileTo(audioUrl, "raw");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        video.setAudioUrl(audioUrl);
+
+        // Save tag of video
+        List<VideoTag> tagList = request.getTags().stream()
+                .map(tagName -> {
+                    VideoTagId id = new VideoTagId(savedVideo.getId(), tagName);
+                    return VideoTag.builder()
+                            .id(id)
+                            .video(savedVideo)
+                            .build();
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+        video.setTags(tagList);
+        videoRepository.save(video);
+    }
 
     @Override
     public PageResponse<?> getAllVideosWithRandom() {

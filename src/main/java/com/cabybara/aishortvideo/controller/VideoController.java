@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.controller;
 
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
@@ -31,6 +32,20 @@ public class VideoController {
 
     private static final String ERROR_MESSAGE = "errorMessage={}";
 
+    // CREATE VIDEO
+    @Operation(method = "POST", summary = "Save video", description = "Save video")
+    @PostMapping(value = "/save")
+    public ResponseData<Void> saveVideo(@Valid @RequestBody SaveVideoRequestDTO request) {
+        log.info("Save video");
+        try {
+            videoService.saveVideo(request);
+            return new ResponseData<>(HttpStatus.CREATED.value(), "Save video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e);
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Save video fail");
+        }
+    }
+
     // HOME PAGE
     @Operation(method = "GET", summary = "Get all videos randomly", description = "Get all videos randomly for home page")
     @GetMapping(value = "")
@@ -45,7 +60,7 @@ public class VideoController {
         try {
             log.info("Get video detail, videoId={}", videoId);
             return new ResponseData<>(HttpStatus.OK.value(), "Video detail", videoService.getOneVideo(videoId));
-        } catch (ResourceNotFoundException e) {
+        } catch (Exception e) {
             log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
             return new ResponseError<>(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
