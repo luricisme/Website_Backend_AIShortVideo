@@ -140,7 +140,7 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
     }
 
     @Override
-    public Video uploadVideoFromUrl(Long userId, String videoUrl, String title, String description) throws Exception {
+    public Video uploadVideoFromUrl(Long userId, String videoUrl, String title, String description, String privacyStatus) throws Exception {
         YouTube youtube = getYouTubeService(userId);
 
         Video video = new Video();
@@ -151,7 +151,7 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         video.setSnippet(snippet);
 
         VideoStatus status = new VideoStatus();
-        status.setPrivacyStatus("private");
+        status.setPrivacyStatus(privacyStatus.equals("private") ? "private" : "public");
         video.setStatus(status);
 
         HttpURLConnection connection = (HttpURLConnection) new URL(videoUrl).openConnection();
