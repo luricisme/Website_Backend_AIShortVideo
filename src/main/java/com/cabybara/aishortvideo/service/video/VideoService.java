@@ -52,4 +52,7 @@ public interface VideoService {
     public PageResponseDetail<?> getTrendingMonthVideo(int pageNo, int pageSize);
 
     public PageResponseDetail<?> searchVideo(int pageNo, int pageSize, String... search);
+
+    // PROFILE PAGE
+    public PageResponseDetail<?> getMyVideo(int pageNo, int pageSize, Long userId);
 }

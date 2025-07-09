@@ -1,4 +1,4 @@
-package com.cabybara.aishortvideo.model;
+package com.cabybara.aishortvideo.model.composite_id;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

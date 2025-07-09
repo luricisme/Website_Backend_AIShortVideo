@@ -254,4 +254,15 @@ public class VideoController {
         log.info("Search video");
         return new ResponseData<>(HttpStatus.OK.value(), "Search video", videoService.searchVideo(pageNo, pageSize, search));
     }
+
+    // PROFILE PAGE
+    @Operation(method = "GET", summary = "Get my video", description = "Get my video")
+    @GetMapping(value = "/my-video/{userId}")
+    public ResponseData<?> getMyVideo(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(1) @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @PathVariable Long userId) {
+        log.info("Get my video");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get my video", videoService.getMyVideo(pageNo, pageSize, userId));
+    }
 }

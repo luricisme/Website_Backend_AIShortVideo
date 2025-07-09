@@ -9,6 +9,10 @@ import com.cabybara.aishortvideo.dto.response.video.*;
 import com.cabybara.aishortvideo.exception.ResourceNotFoundException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.*;
+import com.cabybara.aishortvideo.model.composite_id.DislikedVideoId;
+import com.cabybara.aishortvideo.model.composite_id.LikedVideoId;
+import com.cabybara.aishortvideo.model.composite_id.VideoImageId;
+import com.cabybara.aishortvideo.model.composite_id.VideoTagId;
 import com.cabybara.aishortvideo.repository.*;
 import com.cabybara.aishortvideo.service.cloud.CloudinaryService;
 import com.cabybara.aishortvideo.service.video.VideoService;
@@ -332,6 +336,26 @@ public class VideoServiceImpl implements VideoService {
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         Page<Video> videos = searchRepository.advancedSearch(pageable, search);
 
+        List<VideoDetailResponseDTO> videoDTOs = videos.stream()
+                .map(videoMapper::toDto)
+                .toList();
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(videos.getTotalPages())
+                .totalElements(videos.getTotalElements())
+                .items(videoDTOs)
+                .build();
+    }
+
+    @Override
+    public PageResponseDetail<?> getMyVideo(int pageNo, int pageSize, Long userId) {
+        int page = 0;
+        if (pageNo > 0) {
+            page = pageNo - 1;
+        }
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        Page<Video> videos = videoRepository.findMyVideo(userId, pageable);
         List<VideoDetailResponseDTO> videoDTOs = videos.stream()
                 .map(videoMapper::toDto)
                 .toList();

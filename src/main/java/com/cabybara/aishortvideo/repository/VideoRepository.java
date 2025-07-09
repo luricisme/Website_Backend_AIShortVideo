@@ -67,4 +67,12 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                 ORDER BY v.viewCnt DESC, v.createdAt DESC
             """)
     Page<Video> findTrendingMonthVideo(Pageable pageable);
+
+    @Query("""
+                SELECT v
+                FROM Video v
+                JOIN v.user u
+                WHERE u.id = :userId
+            """)
+    Page<Video> findMyVideo(@Param("userId") Long userId, Pageable pageable);
 }

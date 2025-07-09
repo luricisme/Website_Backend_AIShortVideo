@@ -2,7 +2,7 @@ package com.cabybara.aishortvideo.repository;
 
 import com.cabybara.aishortvideo.dto.response.video.TopPopularTagResponseDTO;
 import com.cabybara.aishortvideo.model.VideoTag;
-import com.cabybara.aishortvideo.model.VideoTagId;
+import com.cabybara.aishortvideo.model.composite_id.VideoTagId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
