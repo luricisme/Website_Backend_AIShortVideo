@@ -46,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/register").permitAll()
                         .requestMatchers("/auth/login").permitAll()
                         .anyRequest().permitAll());
-                        //.anyRequest().authenticated());
+//                        .anyRequest().authenticated());
         http.sessionManagement(
                 session ->
                         session.sessionCreationPolicy(
@@ -59,7 +59,6 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.addFilterBefore(jwtAuthFilter,
                 UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }

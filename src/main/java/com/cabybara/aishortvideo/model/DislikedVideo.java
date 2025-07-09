@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.model;
 
+import com.cabybara.aishortvideo.model.composite_id.DislikedVideoId;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

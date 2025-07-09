@@ -1,6 +1,6 @@
 package com.cabybara.aishortvideo.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.cabybara.aishortvideo.model.composite_id.VideoImageId;
 import jakarta.persistence.*;
 import lombok.*;
 

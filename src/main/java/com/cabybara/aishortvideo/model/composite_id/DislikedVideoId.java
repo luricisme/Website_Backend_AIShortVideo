@@ -1,4 +1,4 @@
-package com.cabybara.aishortvideo.model;
+package com.cabybara.aishortvideo.model.composite_id;
 
 import jakarta.persistence.Column;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.util.Objects;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LikedVideoId implements Serializable{
+public class DislikedVideoId implements Serializable{
     @Column(name = "id_user")
     private Long userId;
 
@@ -21,7 +21,8 @@ public class LikedVideoId implements Serializable{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LikedVideoId that)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+        DislikedVideoId that = (DislikedVideoId) o;
         return Objects.equals(userId, that.userId) &&
                 Objects.equals(videoId, that.videoId);
     }

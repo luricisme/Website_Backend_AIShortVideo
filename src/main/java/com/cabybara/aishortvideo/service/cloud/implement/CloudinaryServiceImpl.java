@@ -31,7 +31,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     public String uploadMultipartFile(MultipartFile file, String fileName, String type) throws IOException {
         log.info("Upload multipart files");
         String folder = "";
-        switch(type) {
+        switch (type) {
             case "image", "raw" -> {
                 folder = TEMP_PHOTO_FOLDER;
             }
@@ -61,7 +61,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
             result = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
-                            "public_id", folder + "/" + fileName,
+                            "public_id", fileName,
                             "resource_type", type,
                             "folder", folder,
                             "overwrite", true,
@@ -81,11 +81,11 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         //	video/mp4
         log.info("Upload base64File");
         String folder = "";
-        if("image".equals(type)){
+        if ("image".equals(type)) {
             folder = TEMP_PHOTO_FOLDER;
-        } else if("raw".equals(type)){
+        } else if ("raw".equals(type)) {
             folder = TEMP_AUDIO_FOLDER;
-        } else if("video".equals(type)){
+        } else if ("video".equals(type)) {
             folder = VIDEO_FOLDER;
         }
 
@@ -96,39 +96,67 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         Map<?, ?> result = cloudinary.uploader().upload(
                 base64,
                 ObjectUtils.asMap(
-                        "public_id", folder + "/" + fileName,
+                        "public_id", fileName,
                         "resource_type", type,
-                        "folder", folder
+                        "folder", folder,
+                        "overwrite", true,
+                        "invalidate", true
                 )
         );
+        System.out.println("UPLOAD RESULT RESOURCE TYPE: " + result.get("resource_type"));
+        System.out.println("UPLOAD RESULT PUBLIC ID: " + result.get("public_id"));
 //        System.out.println("PUBLIC ID: " + result.get("public_id"));
         return result.get("secure_url").toString();
     }
 
     @Override
-    public String moveFileTo(String fileName, String targetFolder, String type) throws IOException {
+    public String moveFileTo(String oldUrl, String type) throws IOException {
         String tempFolder = "";
-        if("image".equals(type)){
+        if ("image".equals(type)) {
             tempFolder = TEMP_PHOTO_FOLDER;
-        } else if("raw".equals(type)){
+        } else if ("raw".equals(type)) {
             tempFolder = TEMP_AUDIO_FOLDER;
         }
 
         String officialFolder = "";
-        if("image".equals(type)){
+        if ("image".equals(type)) {
             officialFolder = OFFICIAL_PHOTO_FOLDER;
-        } else if("raw".equals(type)){
+        } else if ("raw".equals(type)) {
             officialFolder = OFFICIAL_AUDIO_FOLDER;
         }
 
-        Map<?, ?> result = cloudinary.uploader().rename(
-                tempFolder + "/" + fileName,
-                targetFolder + "/" + fileName,
+        // Extract file name from url
+        String fileNameWithExt = oldUrl.substring(oldUrl.lastIndexOf("/") + 1);
+        String fileName = fileNameWithExt.contains(".")
+                ? fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf('.'))
+                : fileNameWithExt;
+
+        if("raw".equals("raw")){
+            fileName = fileName + ".mp3";
+        }
+
+        Map<?, ?> result = cloudinary.uploader().upload(
+                oldUrl,
                 ObjectUtils.asMap(
+                        "public_id", fileName,
+                        "folder", officialFolder,
                         "overwrite", true,
                         "resource_type", type
                 )
         );
+
+        // Delete temp file
+        try {
+            log.info("Delete temp image");
+            String oldPublicId = tempFolder + "/" + fileName;
+
+            cloudinary.uploader().destroy(
+                    oldPublicId,
+                    ObjectUtils.asMap("resource_type", type)
+            );
+        } catch (Exception e) {
+            log.warn("Can not delete temp file: {}", e.getMessage());
+        }
         return result.get("secure_url").toString();
     }
 

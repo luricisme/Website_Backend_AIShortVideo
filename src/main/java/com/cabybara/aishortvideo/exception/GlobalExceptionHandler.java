@@ -72,6 +72,7 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+
     @ExceptionHandler(UserSocialAccountNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUserSocialAccountNotFoundException(UserSocialAccountNotFoundException ex, WebRequest request) {
@@ -81,6 +82,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(UserFollowerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserFollowerException(UserFollowerException ex, WebRequest request) {
+        log.error("=================== handleUserNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(ex.getStatus().value())
+                .message(ex.getMessage())
+                .error("Bad request")
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }
@@ -102,6 +116,19 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleVideoNotFoundException(VideoNotFoundException ex, WebRequest request) {
         log.error("=================== handleVideoNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(TiktokApiException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleTiktokApiException(TiktokApiException ex, WebRequest request) {
+        log.error("=================== handleTiktokApiException ===================", ex);
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.BAD_REQUEST.value())
