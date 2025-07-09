@@ -3,6 +3,7 @@ package com.cabybara.aishortvideo.service.video.implement;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateTitleRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.video.*;
@@ -386,6 +387,18 @@ public class VideoServiceImpl implements VideoService {
                 .totalElements(videos.getTotalElements())
                 .items(videoDTOs)
                 .build();
+    }
+
+    @Override
+    public void updateTitle(Long videoId, UpdateTitleRequestDTO request) {
+        Video video = getVideoById(videoId);
+        video.setTitle(request.getTitle());
+        videoRepository.save(video);
+    }
+
+    @Override
+    public void deleteVideo(Long videoId) {
+        videoRepository.deleteById(videoId);
     }
 
     private Video getVideoById(Long videoId) {

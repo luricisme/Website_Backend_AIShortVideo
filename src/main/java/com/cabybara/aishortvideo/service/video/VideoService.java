@@ -3,6 +3,7 @@ package com.cabybara.aishortvideo.service.video;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateTitleRequestDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponse;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.video.*;
@@ -57,4 +58,9 @@ public interface VideoService {
     public PageResponseDetail<?> getMyVideo(int pageNo, int pageSize, Long userId);
 
     public PageResponseDetail<?> getMyLikedVideo(int pageNo, int pageSize, Long userId);
+
+    // DASHBOARD PROFILE
+    public void updateTitle(Long videoId, UpdateTitleRequestDTO request);
+
+    public void deleteVideo(Long videoId);
 }

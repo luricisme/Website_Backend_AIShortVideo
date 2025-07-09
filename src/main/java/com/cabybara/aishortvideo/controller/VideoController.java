@@ -3,6 +3,7 @@ package com.cabybara.aishortvideo.controller;
 import com.cabybara.aishortvideo.dto.request.video.SaveCommentRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.SaveVideoRequestDTO;
 import com.cabybara.aishortvideo.dto.request.video.UpdateCommentRequestDTO;
+import com.cabybara.aishortvideo.dto.request.video.UpdateTitleRequestDTO;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
 import com.cabybara.aishortvideo.dto.response.video.*;
@@ -152,7 +153,7 @@ public class VideoController {
     @Operation(method = "POST", summary = "Comment video", description = "Comment video (Login first)")
     @PostMapping(value = "/comment")
     public ResponseData<GetAllCommentsForVideoResponseDTO> saveComment(@Valid @RequestBody SaveCommentRequestDTO request) {
-//        log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
+        log.info("Comment video, videoId={}, userId={}", request.getVideoId(), request.getUserId());
         try {
             GetAllCommentsForVideoResponseDTO comment = videoService.saveComment(request);
             return new ResponseData<>(HttpStatus.CREATED.value(), "Comment video successfully", comment);
@@ -274,5 +275,32 @@ public class VideoController {
             @PathVariable Long userId) {
         log.info("Get my liked video");
         return new ResponseData<>(HttpStatus.OK.value(), "Get my liked video", videoService.getMyLikedVideo(pageNo, pageSize, userId));
+    }
+
+    // DASHBOARD PROFILE
+    @Operation(method = "PATCH", summary = "Update video's title", description = "Update video's title")
+    @PatchMapping(value = "/update-title/{videoId}")
+    public ResponseData<Void> updateTitle(@PathVariable @Min(1) Long videoId, @Valid @RequestBody UpdateTitleRequestDTO request) {
+        log.info("Update video's title, videoId={}", videoId);
+        try {
+            videoService.updateTitle(videoId, request);
+            return new ResponseData<>(HttpStatus.OK.value(), "Update video's title successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Update video's title fail");
+        }
+    }
+
+    @Operation(summary = "Delete video", description = "Delete video permanently")
+    @DeleteMapping("/delete-video/{videoId}")
+    public ResponseData<Void> deleteVideo(@Min(value = 1) @PathVariable Long videoId) {
+        log.info("Delete video, videoId={}", videoId);
+        try {
+            videoService.deleteVideo(videoId);
+            return new ResponseData<>(HttpStatus.NO_CONTENT.value(), "Delete video successfully");
+        } catch (Exception e) {
+            log.error(ERROR_MESSAGE, e.getMessage(), e.getCause());
+            return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Delete video fail");
+        }
     }
 }
