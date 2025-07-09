@@ -82,3 +82,5 @@ jobs:
             CLOUD_CLOUDINARY_API_SECRET=${{ secrets.CLOUD_CLOUDINARY_API_SECRET }}
             OAUTH2_TIKTOK_CLIENT_ID: ${{ secrets.OAUTH2_TIKTOK_CLIENT_ID }}
             OAUTH2_TIKTOK_CLIENT_SECRET: ${{ secrets.OAUTH2_TIKTOK_CLIENT_SECRET }}
+      - name: Trigger Render deploy
+        run: curl -X POST https://api.render.com/deploy/srv-d1n8ih6mcj7s73bqnkhg?key=JPsbXwKVbfM
