@@ -53,6 +53,8 @@ public class VideoServiceImpl implements VideoService {
     public void saveVideo(SaveVideoRequestDTO request) {
         User user = getUserById(request.getUserId());
 
+        String audioUrl = "audio";
+
         // Save the first image of list image
         Video video = Video.builder()
                 .title(request.getTitle())
@@ -60,6 +62,7 @@ public class VideoServiceImpl implements VideoService {
                 .style(request.getStyle())
                 .target(request.getTarget())
                 .script(request.getScript())
+                .audioUrl(audioUrl)
                 .videoUrl(request.getVideoUrl())
                 .length(request.getLength())
                 .user(user)
@@ -94,15 +97,6 @@ public class VideoServiceImpl implements VideoService {
         video.setImages(imageList);
         String thumbnail = officialImageUrls.get(0);
         video.setThumbnail(thumbnail);
-
-        // Save audio url
-        String audioUrl = request.getAudioUrl();
-        try {
-            audioUrl = cloudinaryService.moveFileTo(audioUrl, "raw");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        video.setAudioUrl(audioUrl);
 
         // Save tag of video
         List<VideoTag> tagList = request.getTags().stream()
