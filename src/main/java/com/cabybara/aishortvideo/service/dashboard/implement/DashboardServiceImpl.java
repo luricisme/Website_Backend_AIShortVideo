@@ -58,7 +58,7 @@ public class DashboardServiceImpl implements DashboardService {
                     .build();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new DashboardException("Error when getting overview");
+            throw new DashboardException("Error when getting overview, " + e.getMessage());
         }
     }
 
@@ -128,6 +128,10 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public PageResponseDetail<Object> countViewByCate(Long userId, int page, int pageSize) {
+        if (page > 0) {
+            page = page - 1;
+        }
+
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<StatisticCateViewDTO> responsePages = videoRepository.countViewsByCategoryForUser(userId, pageable);
 

@@ -94,7 +94,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
         SELECT v.viewCnt
         FROM Video v
         WHERE v.user.id = :userId
-        ORDER BY v.likeCnt / v.viewCnt DESC
+        ORDER BY CASE WHEN v.viewCnt = 0 THEN 0 ELSE v.likeCnt * 1.0 / v.viewCnt END DESC
         LIMIT 1
     """)
     Long getViewOfBestVideo(Long userId);
