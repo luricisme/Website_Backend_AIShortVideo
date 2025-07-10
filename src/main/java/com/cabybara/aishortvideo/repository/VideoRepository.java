@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.repository;
 
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.TopTrendingCategoryResponseDTO;
 import com.cabybara.aishortvideo.model.Video;
@@ -112,4 +113,16 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
         WHERE v.user.id = :userId
     """)
     Long getTotalViewCountByUserId(Long userId);
+
+    @Query("""
+        SELECT new com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO(v.category, SUM(v.viewCnt))
+        FROM Video v
+        WHERE v.user.id = :userId
+        GROUP BY v.category
+        ORDER BY SUM(v.viewCnt) DESC
+    """)
+    Page<StatisticCateViewDTO> countViewsByCategoryForUser(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
 }

@@ -3,9 +3,11 @@ package com.cabybara.aishortvideo.controller;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.dashboard.OverviewDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticPublishVideoDTO;
 import com.cabybara.aishortvideo.dto.response.dashboard.ViewCountByPlatformDTO;
 import com.cabybara.aishortvideo.model.UserDetail;
 import com.cabybara.aishortvideo.service.dashboard.DashboardService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,5 +61,35 @@ public class DashboardController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseData<>(HttpStatus.OK, "Successfully", response));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("platform_statistic")
+    public ResponseEntity<ResponseData<StatisticPublishVideoDTO>> platformStatistic(
+            @Parameter(description = "google or tiktok",
+                    required = true,
+                    example = "google")
+            @RequestParam("platform") String platform,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) {
+        StatisticPublishVideoDTO statisticPublishVideoDTO = dashboardService.getStatisticPublishVideo(userDetail.getId(), platform);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", statisticPublishVideoDTO));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("view_by_cate")
+    public ResponseEntity<ResponseData<PageResponseDetail<Object>>> countViewByCate(
+            @RequestParam("page") int page,
+            @RequestParam("pageSize") int pageSize,
+            @AuthenticationPrincipal UserDetail userDetail
+    ) {
+        PageResponseDetail<Object> responseDetail = dashboardService.countViewByCate(userDetail.getId(), page, pageSize);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseData<>(HttpStatus.OK, "Successfully", responseDetail));
     }
 }
