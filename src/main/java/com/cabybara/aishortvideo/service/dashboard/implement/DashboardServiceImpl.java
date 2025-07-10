@@ -2,6 +2,8 @@ package com.cabybara.aishortvideo.service.dashboard.implement;
 
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.dashboard.OverviewDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticPublishVideoDTO;
 import com.cabybara.aishortvideo.dto.response.dashboard.ViewCountByPlatformDTO;
 import com.cabybara.aishortvideo.exception.DashboardException;
 import com.cabybara.aishortvideo.model.Video;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -94,6 +97,46 @@ public class DashboardServiceImpl implements DashboardService {
                 .youtubeView(youtubeView)
                 .tiktokView(tiktokView)
                 .mainView(mainView)
+                .build();
+    }
+
+    @Override
+    public StatisticPublishVideoDTO getStatisticPublishVideo(Long userId, String platform) {
+
+        long totalView = Optional.ofNullable(publishedVideoRepository.sumViewCountByPlatformAndUploadBy(platform, userId))
+                .orElse(0L);
+        long totalLike = Optional.ofNullable(publishedVideoRepository.sumLikeCountByPlatformAndUploadBy(platform, userId))
+                .orElse(0L);
+        long totalComment = Optional.ofNullable(publishedVideoRepository.sumCommentCountByPlatformAndUploadBy(platform, userId))
+                .orElse(0L);
+        long totalDislike = Optional.ofNullable(publishedVideoRepository.sumDislikeCountByPlatformAndUploadBy(platform, userId))
+                .orElse(0L);
+        double interactionPercent = 0.0;
+        if (totalView > 0) {
+            interactionPercent = (double) (totalLike + totalDislike + totalComment) / totalView;
+        }
+
+
+        return StatisticPublishVideoDTO.builder()
+                .viewCount(totalView)
+                .likeCount(totalLike)
+                .dislikeCount(totalDislike)
+                .commentCount(totalComment)
+                .interactionPercent(interactionPercent)
+                .build();
+    }
+
+    @Override
+    public PageResponseDetail<Object> countViewByCate(Long userId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<StatisticCateViewDTO> responsePages = videoRepository.countViewsByCategoryForUser(userId, pageable);
+
+        return PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(responsePages.getTotalPages())
+                .totalElements(responsePages.getTotalElements())
+                .items(responsePages.getContent())
                 .build();
     }
 

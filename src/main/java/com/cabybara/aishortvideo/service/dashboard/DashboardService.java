@@ -2,10 +2,8 @@ package com.cabybara.aishortvideo.service.dashboard;
 
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.dashboard.OverviewDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticPublishVideoDTO;
 import com.cabybara.aishortvideo.dto.response.dashboard.ViewCountByPlatformDTO;
-import com.cabybara.aishortvideo.model.Video;
-
-import java.util.List;
 
 public interface DashboardService {
     OverviewDTO getOverview(Long userId);
@@ -14,4 +12,8 @@ public interface DashboardService {
             pageSize);
 
     ViewCountByPlatformDTO getViewStatistic(Long userId);
+
+    StatisticPublishVideoDTO getStatisticPublishVideo(Long userId, String platform);
+
+    PageResponseDetail<Object> countViewByCate(Long userId, int page, int pageSize);
 }
