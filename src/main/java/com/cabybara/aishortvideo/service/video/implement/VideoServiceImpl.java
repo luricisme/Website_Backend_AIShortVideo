@@ -95,15 +95,6 @@ public class VideoServiceImpl implements VideoService {
         String thumbnail = officialImageUrls.get(0);
         video.setThumbnail(thumbnail);
 
-        // Save audio url
-        String audioUrl = request.getAudioUrl();
-        try {
-            audioUrl = cloudinaryService.moveFileTo(audioUrl, "raw");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        video.setAudioUrl(audioUrl);
-
         // Save tag of video
         List<VideoTag> tagList = request.getTags().stream()
                 .map(tagName -> {
