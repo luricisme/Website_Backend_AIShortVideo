@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.exception;
 
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -133,6 +134,32 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(DashboardException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleDashboardException(DashboardException ex, WebRequest request) {
+        log.error("=================== handleDashboardException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(TokenResponseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleYoutubeTokenResponseException(DashboardException ex, WebRequest request) {
+        log.error("=================== handleYoutubeTokenResponseException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Token has expired, please login again")
                 .error(HttpStatus.BAD_REQUEST.name())
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();

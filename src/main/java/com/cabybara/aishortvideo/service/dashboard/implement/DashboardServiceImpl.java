@@ -1,0 +1,101 @@
+package com.cabybara.aishortvideo.service.dashboard.implement;
+
+import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
+import com.cabybara.aishortvideo.dto.response.dashboard.OverviewDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.ViewCountByPlatformDTO;
+import com.cabybara.aishortvideo.exception.DashboardException;
+import com.cabybara.aishortvideo.model.Video;
+import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
+import com.cabybara.aishortvideo.repository.UserFollowerRepository;
+import com.cabybara.aishortvideo.repository.VideoRepository;
+import com.cabybara.aishortvideo.service.dashboard.DashboardService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class DashboardServiceImpl implements DashboardService {
+    private static final Logger log = LoggerFactory.getLogger(DashboardServiceImpl.class);
+    private final VideoRepository videoRepository;
+    private final UserFollowerRepository userFollowerRepository;
+    private final PublishedVideoRepository publishedVideoRepository;
+
+
+    public DashboardServiceImpl(
+            VideoRepository videoRepository,
+            UserFollowerRepository userFollowerRepository, PublishedVideoRepository publishedVideoRepository) {
+        this.videoRepository = videoRepository;
+        this.userFollowerRepository = userFollowerRepository;
+        this.publishedVideoRepository = publishedVideoRepository;
+    }
+
+    @Override
+    public OverviewDTO getOverview(Long userId) {
+        try {
+            Long totalVideo = videoRepository.countByUserId(userId);
+            Long totalView = videoRepository.findByUserId(userId).stream()
+                    .mapToLong(Video::getViewCnt)
+                    .sum();
+            Long totalFollower = userFollowerRepository.countByUserFollowerIdUserId(userId);
+            Long totalFollowing = userFollowerRepository.countByUserFollowerIdFollowerId(userId);
+            Long viewBestVideo = videoRepository.getViewOfBestVideo(userId);
+
+            return OverviewDTO.builder()
+                    .totalVideo(totalVideo)
+                    .totalView(totalView)
+                    .totalFollower(totalFollower)
+                    .totalFollowing(totalFollowing)
+                    .viewBestVideo(viewBestVideo)
+                    .build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new DashboardException("Error when getting overview");
+        }
+    }
+
+    @Override
+    public PageResponseDetail<Object> topInteractedVideos(Long userId, int page, int pageSize) {
+        if (page > 0) {
+            page = page - 1;
+        }
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Video> topInteractedVideos = videoRepository.findTop5ByMostInteractions(userId, pageable);
+
+        List<Video> listInteractedVideos = topInteractedVideos.stream().toList();
+
+        return PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalElements(topInteractedVideos.getTotalElements())
+                .totalPage(topInteractedVideos.getTotalPages())
+                .items(listInteractedVideos)
+                .build();
+    }
+
+    @Override
+    public ViewCountByPlatformDTO getViewStatistic(Long userId) {
+        long mainView = videoRepository.getTotalViewCountByUserId(userId);
+        Long youtubeViewRaw = publishedVideoRepository.getTotalViewCountByPlatform("google");
+        long youtubeView = Optional.ofNullable(youtubeViewRaw).orElse(0L);
+
+        Long tiktokViewRaw = publishedVideoRepository.getTotalViewCountByPlatform("tiktok");
+        long tiktokView = Optional.ofNullable(tiktokViewRaw).orElse(0L);
+
+        long totalView = mainView + youtubeView + tiktokView;
+
+        return ViewCountByPlatformDTO.builder()
+                .totalView(totalView)
+                .youtubeView(youtubeView)
+                .tiktokView(tiktokView)
+                .mainView(mainView)
+                .build();
+    }
+
+
+}
