@@ -21,8 +21,6 @@ public class SaveVideoRequestDTO {
     @NotBlank
     private String script;
     @NotBlank
-    private String audioUrl;
-    @NotBlank
     private String videoUrl;
     @NotNull
     private double length;
