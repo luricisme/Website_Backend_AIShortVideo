@@ -52,11 +52,13 @@ public class PublishVideoController {
 
     @PostMapping("/youtube/upload_url")
     public ResponseEntity<ResponseData<String>> uploadVideoFromUrl(@RequestParam("videoUrl") String videoUrl,
-                                      @RequestParam String title,
-                                      @RequestParam String description,
-                                      @RequestParam Long userId) throws Exception {
+                                                                   @RequestParam String title,
+                                                                   @RequestParam String description,
+                                                                   @RequestParam Long userId,
+                                                                   @RequestParam String privacyStatus
+    ) throws Exception {
 
-        Video uploaded = youtubeApiService.uploadVideoFromUrl(userId, videoUrl, title, description);
+        Video uploaded = youtubeApiService.uploadVideoFromUrl(userId, videoUrl, title, description, privacyStatus);
 
         Boolean isViewable = youtubeApiService.waitUntilVideoIsProcessed(userId, uploaded.getId());
 
