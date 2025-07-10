@@ -53,6 +53,8 @@ public class VideoServiceImpl implements VideoService {
     public void saveVideo(SaveVideoRequestDTO request) {
         User user = getUserById(request.getUserId());
 
+        String audioUrl = "audio";
+
         // Save the first image of list image
         Video video = Video.builder()
                 .title(request.getTitle())
@@ -60,6 +62,7 @@ public class VideoServiceImpl implements VideoService {
                 .style(request.getStyle())
                 .target(request.getTarget())
                 .script(request.getScript())
+                .audioUrl(audioUrl)
                 .videoUrl(request.getVideoUrl())
                 .length(request.getLength())
                 .user(user)
