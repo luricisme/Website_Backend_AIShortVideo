@@ -19,6 +19,7 @@ public interface VideoMapper {
     VideoDetailResponseDTO toDto(Video video);
 
     @Mapping(target = "totalInteraction", source = ".", qualifiedByName = "toTotalInteraction")
+    @Mapping(target = "thumbnailUrl", source = "thumbnail")
     VideoInteractDTO toVideoInteractDTO(Video video);
 
     @Named("toTotalInteraction")
