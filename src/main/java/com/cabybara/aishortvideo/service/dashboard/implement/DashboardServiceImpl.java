@@ -3,12 +3,14 @@ package com.cabybara.aishortvideo.service.dashboard.implement;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
 import com.cabybara.aishortvideo.dto.response.dashboard.*;
 import com.cabybara.aishortvideo.exception.DashboardException;
+import com.cabybara.aishortvideo.exception.YoutubeApiException;
 import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.Video;
 import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.dashboard.DashboardService;
+import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,15 +29,17 @@ public class DashboardServiceImpl implements DashboardService {
     private final UserFollowerRepository userFollowerRepository;
     private final PublishedVideoRepository publishedVideoRepository;
     private final VideoMapper videoMapper;
+    private final YoutubeApiService youtubeApiService;
 
 
     public DashboardServiceImpl(
             VideoRepository videoRepository,
-            UserFollowerRepository userFollowerRepository, PublishedVideoRepository publishedVideoRepository, VideoMapper videoMapper) {
+            UserFollowerRepository userFollowerRepository, PublishedVideoRepository publishedVideoRepository, VideoMapper videoMapper, YoutubeApiService youtubeApiService) {
         this.videoRepository = videoRepository;
         this.userFollowerRepository = userFollowerRepository;
         this.publishedVideoRepository = publishedVideoRepository;
         this.videoMapper = videoMapper;
+        this.youtubeApiService = youtubeApiService;
     }
 
     @Override
@@ -105,6 +109,11 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public StatisticPublishVideoDTO getStatisticPublishVideo(Long userId, String platform) {
+        try {
+            youtubeApiService.fetchVideoStatistics(userId);
+        } catch (Exception e) {
+            throw new YoutubeApiException("Error when fetching statistic, " + e.getMessage());
+        }
 
         long totalView = Optional.ofNullable(publishedVideoRepository.sumViewCountByPlatformAndUploadBy(platform, userId))
                 .orElse(0L);

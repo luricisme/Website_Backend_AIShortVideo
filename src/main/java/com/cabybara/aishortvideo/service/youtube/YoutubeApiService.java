@@ -12,6 +12,8 @@ public interface YoutubeApiService {
 
     Video getVideoStatistics(Long userId, String videoId) throws Exception;
 
+    void fetchVideoStatistics(Long userId) throws Exception;
+
     Boolean waitUntilVideoIsProcessed(Long userId, String videoId) throws Exception;
 
     List<Video> getUploadedVideos(Long userId, String channelId) throws Exception;
