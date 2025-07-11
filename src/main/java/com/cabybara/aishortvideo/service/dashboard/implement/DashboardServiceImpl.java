@@ -90,11 +90,17 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ViewCountByPlatformDTO getViewStatistic(Long userId) {
+        try {
+            youtubeApiService.fetchVideoStatistics(userId);
+        } catch (Exception e) {
+            throw new YoutubeApiException("Error when fetching statistic, " + e.getMessage());
+        }
+
         long mainView = videoRepository.getTotalViewCountByUserId(userId);
-        Long youtubeViewRaw = publishedVideoRepository.getTotalViewCountByPlatform("google");
+        Long youtubeViewRaw = publishedVideoRepository.getTotalViewCountByPlatformAndUploadedBy("google", userId);
         long youtubeView = Optional.ofNullable(youtubeViewRaw).orElse(0L);
 
-        Long tiktokViewRaw = publishedVideoRepository.getTotalViewCountByPlatform("tiktok");
+        Long tiktokViewRaw = publishedVideoRepository.getTotalViewCountByPlatformAndUploadedBy("tiktok", userId);
         long tiktokView = Optional.ofNullable(tiktokViewRaw).orElse(0L);
 
         long totalView = mainView + youtubeView + tiktokView;
@@ -124,10 +130,10 @@ public class DashboardServiceImpl implements DashboardService {
         long totalDislike = Optional.ofNullable(publishedVideoRepository.sumDislikeCountByPlatformAndUploadBy(platform, userId))
                 .orElse(0L);
         double interactionPercent = 0.0;
+
         if (totalView > 0) {
             interactionPercent = (double) (totalLike + totalDislike + totalComment) / totalView;
         }
-
 
         return StatisticPublishVideoDTO.builder()
                 .viewCount(totalView)

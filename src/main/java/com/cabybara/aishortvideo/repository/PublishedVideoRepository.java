@@ -16,9 +16,9 @@ public interface PublishedVideoRepository extends JpaRepository<PublishedVideo, 
     @Query("""
         SELECT SUM(pv.viewCount)
         FROM PublishedVideo pv
-        WHERE pv.platform LIKE :platform
+        WHERE pv.platform LIKE :platform AND pv.uploadedBy = :userId
     """)
-    Long getTotalViewCountByPlatform(String platform);
+    Long getTotalViewCountByPlatformAndUploadedBy(String platform, Long userId);
 
 
     @Query("SELECT SUM(pv.viewCount) FROM PublishedVideo pv WHERE pv.platform = :platform AND pv.uploadedBy = :userId")
