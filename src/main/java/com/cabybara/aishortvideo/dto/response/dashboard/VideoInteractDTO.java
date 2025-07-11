@@ -9,4 +9,5 @@ public class VideoInteractDTO {
     private String title;
     private Long totalInteraction;
     private String videoUrl;
+    private String thumbnailUrl;
 }

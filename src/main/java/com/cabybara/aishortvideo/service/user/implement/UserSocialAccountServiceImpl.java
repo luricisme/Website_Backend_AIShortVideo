@@ -69,7 +69,7 @@ public class UserSocialAccountServiceImpl implements UserSocialAccountService {
         User user = userRepository.getReferenceById(userId);
         return userSocialAccountRepository.findByUserAndPlatform(user, platform)
                 .orElseThrow(
-                        () -> new UserSocialAccountNotFoundException("Social account not found! Please login with google to upload video")
+                        () -> new UserSocialAccountNotFoundException("Social account not found! Please login with google to continue")
                 );
     }
 }

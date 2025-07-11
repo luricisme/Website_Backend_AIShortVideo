@@ -32,4 +32,9 @@ public interface PublishedVideoRepository extends JpaRepository<PublishedVideo, 
 
     @Query("SELECT SUM(pv.dislikeCount) FROM PublishedVideo pv WHERE pv.platform = :platform AND pv.uploadedBy = :userId")
     Long sumDislikeCountByPlatformAndUploadBy(String platform, Long userId);
+
+    @Query("""
+        SELECT pv.videoId FROM PublishedVideo pv WHERE pv.uploadedBy = :userId
+    """)
+    List<String> findAllVideoIdByUpdatedBy(Long userId);
 }
