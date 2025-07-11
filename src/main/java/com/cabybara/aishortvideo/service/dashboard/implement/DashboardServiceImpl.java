@@ -1,11 +1,9 @@
 package com.cabybara.aishortvideo.service.dashboard.implement;
 
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
-import com.cabybara.aishortvideo.dto.response.dashboard.OverviewDTO;
-import com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO;
-import com.cabybara.aishortvideo.dto.response.dashboard.StatisticPublishVideoDTO;
-import com.cabybara.aishortvideo.dto.response.dashboard.ViewCountByPlatformDTO;
+import com.cabybara.aishortvideo.dto.response.dashboard.*;
 import com.cabybara.aishortvideo.exception.DashboardException;
+import com.cabybara.aishortvideo.mapper.VideoMapper;
 import com.cabybara.aishortvideo.model.Video;
 import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
@@ -28,14 +26,16 @@ public class DashboardServiceImpl implements DashboardService {
     private final VideoRepository videoRepository;
     private final UserFollowerRepository userFollowerRepository;
     private final PublishedVideoRepository publishedVideoRepository;
+    private final VideoMapper videoMapper;
 
 
     public DashboardServiceImpl(
             VideoRepository videoRepository,
-            UserFollowerRepository userFollowerRepository, PublishedVideoRepository publishedVideoRepository) {
+            UserFollowerRepository userFollowerRepository, PublishedVideoRepository publishedVideoRepository, VideoMapper videoMapper) {
         this.videoRepository = videoRepository;
         this.userFollowerRepository = userFollowerRepository;
         this.publishedVideoRepository = publishedVideoRepository;
+        this.videoMapper = videoMapper;
     }
 
     @Override
@@ -70,14 +70,17 @@ public class DashboardServiceImpl implements DashboardService {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Video> topInteractedVideos = videoRepository.findTop5ByMostInteractions(userId, pageable);
 
-        List<Video> listInteractedVideos = topInteractedVideos.stream().toList();
+        List<Video> listInteractedVideos = topInteractedVideos.getContent();
+        List<VideoInteractDTO> videoInteractDTOList = listInteractedVideos.stream()
+                .map(videoMapper::toVideoInteractDTO)
+                .toList();
 
         return PageResponseDetail.builder()
                 .pageNo(page)
                 .pageSize(pageSize)
                 .totalElements(topInteractedVideos.getTotalElements())
                 .totalPage(topInteractedVideos.getTotalPages())
-                .items(listInteractedVideos)
+                .items(videoInteractDTOList)
                 .build();
     }
 
