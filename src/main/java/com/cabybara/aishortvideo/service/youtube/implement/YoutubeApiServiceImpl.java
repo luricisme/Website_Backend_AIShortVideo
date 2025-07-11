@@ -215,31 +215,6 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         }
     }
 
-    private Video getVideoStatisticsOptimized(String videoId, YouTube youTube) throws Exception {
-        YouTube.Videos.List request = youTube.videos()
-                .list("statistics,snippet,status")
-                .setId(videoId);
-
-        try {
-            VideoListResponse videoListResponse = request.execute();
-            if (videoListResponse.getItems() == null || videoListResponse.getItems().isEmpty()) {
-                throw new VideoNotFoundException("Video not found");
-            }
-
-            Video responseVideo = videoListResponse.getItems().getFirst();
-            publishedVideoService.updatePublishedVideo(videoId, responseVideo);
-
-            return responseVideo;
-        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 400) {
-                throw new VideoNotFoundException("Bad request or video not found: " + e.getDetails().getMessage());
-            }
-            throw e;
-        } catch (RuntimeException e) {
-            throw new VideoNotFoundException("Video not found");
-        }
-    }
-
     @Override
     public void fetchVideoStatistics(Long userId) throws Exception {
         List<String> publishedVideoIds = publishedVideoRepository.findAllVideoIdByUpdatedBy(userId);
