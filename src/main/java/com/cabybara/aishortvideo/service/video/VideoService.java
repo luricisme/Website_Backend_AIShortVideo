@@ -68,4 +68,6 @@ public interface VideoService {
     public long countCreatedVideoToday();
 
     public long countCreatedTag();
+
+    public PageResponseDetail<?> getAllTags(int pageNo, int pageSize);
 }

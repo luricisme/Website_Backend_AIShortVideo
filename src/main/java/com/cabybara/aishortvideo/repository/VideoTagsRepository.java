@@ -1,8 +1,10 @@
 package com.cabybara.aishortvideo.repository;
 
+import com.cabybara.aishortvideo.dto.response.video.GetAllTagResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.TopPopularTagResponseDTO;
 import com.cabybara.aishortvideo.model.VideoTag;
 import com.cabybara.aishortvideo.model.composite_id.VideoTagId;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +25,10 @@ public interface VideoTagsRepository extends JpaRepository<VideoTag, VideoTagId>
                 FROM VideoTag AS vt
             """)
     long countCreatedTag();
+
+    @Query("SELECT new com.cabybara.aishortvideo.dto.response.video.GetAllTagResponseDTO(v.id.tagName, COUNT(v.id.videoId)) " +
+            "FROM VideoTag v " +
+            "GROUP BY v.id.tagName " +
+            "ORDER BY COUNT(v.id.videoId) DESC")
+    Page<GetAllTagResponseDTO> getAllTags(Pageable pageable);
 }
