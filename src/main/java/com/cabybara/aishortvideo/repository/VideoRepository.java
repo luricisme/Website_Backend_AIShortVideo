@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.repository;
 
+import com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO;
 import com.cabybara.aishortvideo.dto.response.video.CountForVideoResponseDTO;
 import com.cabybara.aishortvideo.dto.response.video.TopTrendingCategoryResponseDTO;
 import com.cabybara.aishortvideo.model.Video;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +86,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             """)
     Page<Video> findMyLikedVideos(@Param("userId") Long userId, Pageable pageable);
 
+
     @Query(value = """
                 SELECT COUNT(*) 
                 FROM Video AS v
@@ -93,4 +96,44 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                   AND EXTRACT(YEAR FROM v.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE)
             """)
     long countCreatedVideoToday();
+
+    Long countByUserId(Long userId);
+
+    List<Video> findByUserId(Long userId);
+
+    @Query("""
+        SELECT v.viewCnt
+        FROM Video v
+        WHERE v.user.id = :userId
+        ORDER BY CASE WHEN v.viewCnt = 0 THEN 0 ELSE v.likeCnt * 1.0 / v.viewCnt END DESC
+        LIMIT 1
+    """)
+    Long getViewOfBestVideo(Long userId);
+
+    @Query(value = """
+        SELECT v
+        FROM Video v
+        WHERE v.user.id = :userId
+        ORDER BY (v.viewCnt + v.likeCnt + v.commentCnt + v.dislikeCnt) DESC
+    """)
+    Page<Video> findTop5ByMostInteractions(Long userId, Pageable pageable);
+
+    @Query("""
+        SELECT SUM(v.viewCnt)
+        FROM Video v
+        WHERE v.user.id = :userId
+    """)
+    Long getTotalViewCountByUserId(Long userId);
+
+    @Query("""
+        SELECT new com.cabybara.aishortvideo.dto.response.dashboard.StatisticCateViewDTO(v.category, SUM(v.viewCnt))
+        FROM Video v
+        WHERE v.user.id = :userId
+        GROUP BY v.category
+        ORDER BY SUM(v.viewCnt) DESC
+    """)
+    Page<StatisticCateViewDTO> countViewsByCategoryForUser(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
 }

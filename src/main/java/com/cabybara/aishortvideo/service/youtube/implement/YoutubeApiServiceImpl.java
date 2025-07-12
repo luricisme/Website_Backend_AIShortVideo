@@ -1,8 +1,13 @@
 package com.cabybara.aishortvideo.service.youtube.implement;
 
+import com.cabybara.aishortvideo.exception.VideoNotFoundException;
+import com.cabybara.aishortvideo.mapper.PublishedVideoMapper;
+import com.cabybara.aishortvideo.model.PublishedVideo;
 import com.cabybara.aishortvideo.model.UserSocialAccount;
+import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
 import com.cabybara.aishortvideo.service.auth.GoogleOauthService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
+import com.cabybara.aishortvideo.service.youtube.PublishedVideoService;
 import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.CredentialRefreshListener;
@@ -18,6 +23,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -28,6 +34,9 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +75,9 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
     }
 
     private final UserSocialAccountService userSocialAccountService;
+    private final PublishedVideoMapper publishedVideoMapper;
+    private final PublishedVideoService publishedVideoService;
+    private final PublishedVideoRepository publishedVideoRepository;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
@@ -74,9 +86,15 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
     private String clientSecret;
 
     public YoutubeApiServiceImpl(
-            UserSocialAccountService userSocialAccountService
+            UserSocialAccountService userSocialAccountService,
+            PublishedVideoMapper mapper,
+            PublishedVideoService publishedVideoService,
+            PublishedVideoRepository publishedVideoRepository
     ) {
         this.userSocialAccountService = userSocialAccountService;
+        this.publishedVideoMapper = mapper;
+        this.publishedVideoService = publishedVideoService;
+        this.publishedVideoRepository = publishedVideoRepository;
     }
 
     private YouTube getYouTubeService(Long userId) throws GeneralSecurityException, IOException {
@@ -119,13 +137,19 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         mediaContent.setLength(videoFile.length());
 
         YouTube.Videos.Insert request = youtube.videos()
-                .insert("snippet,status", video, mediaContent);
+                .insert("snippet,status,contentDetails", video, mediaContent);
 
-        return request.execute();
+        Video responseVideo = request.execute();
+        PublishedVideo publishedVideo = publishedVideoMapper.toPublishedVideoFromYoutubeVideo(responseVideo);
+        publishedVideo.setUploadedBy(userId);
+        publishedVideo.setPlatform("google");
+        publishedVideoService.savePublishedVideo(publishedVideo);
+
+        return responseVideo;
     }
 
     @Override
-    public Video uploadVideoFromUrl(Long userId, String videoUrl, String title, String description) throws Exception {
+    public Video uploadVideoFromUrl(Long userId, String videoUrl, String title, String description, String privacyStatus) throws Exception {
         YouTube youtube = getYouTubeService(userId);
 
         Video video = new Video();
@@ -136,7 +160,7 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         video.setSnippet(snippet);
 
         VideoStatus status = new VideoStatus();
-        status.setPrivacyStatus("private");
+        status.setPrivacyStatus(privacyStatus.equals("private") ? "private" : "public");
         video.setStatus(status);
 
         HttpURLConnection connection = (HttpURLConnection) new URL(videoUrl).openConnection();
@@ -151,9 +175,14 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
         }
 
         YouTube.Videos.Insert request = youtube.videos()
-                .insert("snippet,status", video, mediaContent);
+                .insert("snippet,status,contentDetails", video, mediaContent);
 
-        return request.execute();
+        Video responseVideo = request.execute();
+        PublishedVideo publishedVideo = publishedVideoMapper.toPublishedVideoFromYoutubeVideo(responseVideo);
+        publishedVideo.setUploadedBy(userId);
+        publishedVideo.setPlatform("google");
+        publishedVideoService.savePublishedVideo(publishedVideo);
+        return responseVideo;
     }
 
 
@@ -166,11 +195,55 @@ public class YoutubeApiServiceImpl implements YoutubeApiService {
                 .list("statistics,snippet,status")
                 .setId(videoId);
 
-        VideoListResponse response = request.execute();
-        if (response.getItems().isEmpty()) {
-            throw new RuntimeException("Video not found");
+        try {
+            VideoListResponse videoListResponse = request.execute();
+            if (videoListResponse.getItems() == null || videoListResponse.getItems().isEmpty()) {
+                throw new VideoNotFoundException("Video not found");
+            }
+
+            Video responseVideo = videoListResponse.getItems().getFirst();
+            publishedVideoService.updatePublishedVideo(videoId, responseVideo);
+
+            return responseVideo;
+        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+            if (e.getStatusCode() == 400) {
+                throw new VideoNotFoundException("Bad request or video not found: " + e.getDetails().getMessage());
+            }
+            throw e;
+        } catch (RuntimeException e) {
+            throw new VideoNotFoundException("Video not found");
         }
-        return response.getItems().getFirst();
+    }
+
+    @Override
+    public void fetchVideoStatistics(Long userId) throws Exception {
+        List<String> publishedVideoIds = publishedVideoRepository.findAllVideoIdByUpdatedBy(userId);
+
+        final YouTube youTubeService = getYouTubeService(userId);
+
+        int batchSize = 50;
+        for (int i = 0; i < publishedVideoIds.size(); i += batchSize) {
+            List<String> sublist = publishedVideoIds.subList(i, Math.min(i + batchSize, publishedVideoIds.size()));
+            String videoIdsParam = String.join(",", sublist);
+
+            try {
+                YouTube.Videos.List request = youTubeService.videos()
+                        .list("statistics,snippet,status")
+                        .setId(videoIdsParam);
+
+                VideoListResponse videoListResponse = request.execute();
+
+                if (videoListResponse.getItems() != null && !videoListResponse.getItems().isEmpty()) {
+                    for (Video responseVideo : videoListResponse.getItems()) {
+                        publishedVideoService.updatePublishedVideo(responseVideo.getId(), responseVideo);
+                    }
+                }
+            } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException e) {
+                log.error("Error fetching batch of videos: " + e.getMessage());
+            } catch (IOException e) {
+                log.error("Network error fetching batch of videos: " + e.getMessage());
+            }
+        }
     }
 
     @Override

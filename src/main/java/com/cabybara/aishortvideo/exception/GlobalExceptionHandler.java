@@ -1,5 +1,6 @@
 package com.cabybara.aishortvideo.exception;
 
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyException(UserAlreadyExistsException e, WebRequest request) {
-        log.error("=================== handleUserException ===================");
+        log.error("=================== handleUserAlreadyException ===================");
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.CONFLICT.value())
@@ -72,15 +73,107 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+
+    @ExceptionHandler(UserSocialAccountNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserSocialAccountNotFoundException(UserSocialAccountNotFoundException ex, WebRequest request) {
+        log.error("=================== handleUserSocialAccountNotFoundException ===================", ex.getMessage());
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(UserFollowerException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUserFollowerException(UserFollowerException ex, WebRequest request) {
+        log.error("=================== handleUserNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(ex.getStatus().value())
+                .message(ex.getMessage())
+                .error("Bad request")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
     @ExceptionHandler(UploadFileException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUploadFileException(UploadFileException ex, WebRequest request) {
-        log.error("=================== handleUserNotFoundException ===================", ex);
+        log.error("=================== handleUploadFileException ===================", ex);
         return ErrorResponse.builder()
                 .path(request.getDescription(false).replace("uri=", ""))
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .error("Bad request")
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(VideoNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleVideoNotFoundException(VideoNotFoundException ex, WebRequest request) {
+        log.error("=================== handleVideoNotFoundException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(TiktokApiException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleTiktokApiException(TiktokApiException ex, WebRequest request) {
+        log.error("=================== handleTiktokApiException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(DashboardException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleDashboardException(DashboardException ex, WebRequest request) {
+        log.error("=================== handleDashboardException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(TokenResponseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleYoutubeTokenResponseException(DashboardException ex, WebRequest request) {
+        log.error("=================== handleYoutubeTokenResponseException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message("Token has expired, please login again")
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
+
+    @ExceptionHandler(YoutubeApiException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleYoutubeApiException(YoutubeApiException ex, WebRequest request) {
+        log.error("=================== handleYoutubeApiException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }
