@@ -303,4 +303,19 @@ public class VideoController {
             return new ResponseError(HttpStatus.BAD_REQUEST.value(), "Delete video fail");
         }
     }
+
+    // ADMIN
+    @Operation(method = "GET", summary = "Count created videos", description = "Get number of videos that created today")
+    @GetMapping(value = "/admin/count-created-video-today")
+    public ResponseData<?> countCreatedVideoToday() {
+        log.info("Get number of videos that created today");
+        return new ResponseData<>(HttpStatus.OK.value(), "Number of created video today", videoService.countCreatedVideoToday());
+    }
+
+    @Operation(method = "GET", summary = "Count created tags", description = "Get number of tags that created")
+    @GetMapping(value = "/admin/count-created-tag")
+    public ResponseData<?> countCreatedTag() {
+        log.info("Get number of tags that created");
+        return new ResponseData<>(HttpStatus.OK.value(), "Number of created tags", videoService.countCreatedTag());
+    }
 }

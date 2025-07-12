@@ -395,6 +395,17 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.deleteById(videoId);
     }
 
+    // ADMIN
+    @Override
+    public long countCreatedVideoToday() {
+        return videoRepository.countCreatedVideoToday();
+    }
+
+    @Override
+    public long countCreatedTag() {
+        return videoTagsRepository.countCreatedTag();
+    }
+
     private Video getVideoById(Long videoId) {
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }

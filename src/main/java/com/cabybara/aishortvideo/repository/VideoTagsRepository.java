@@ -17,4 +17,10 @@ public interface VideoTagsRepository extends JpaRepository<VideoTag, VideoTagId>
             "GROUP BY v.id.tagName " +
             "ORDER BY COUNT(v.id.videoId) DESC")
     List<TopPopularTagResponseDTO> findTop5TagsByVideoCount(Pageable pageable);
+
+    @Query(value = """
+                SELECT COUNT(DISTINCT vt.id.tagName) 
+                FROM VideoTag AS vt
+            """)
+    long countCreatedTag();
 }
