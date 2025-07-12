@@ -9,21 +9,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @Setter
 public class UpdateUserDTO {
-    @NotBlank
     private String firstName;
 
-    @NotBlank
     private String lastName;
 
     @Email
-    @NotBlank
     private String email;
 
-    @NotBlank
     private String username;
 
     private String bio;
@@ -31,4 +29,5 @@ public class UpdateUserDTO {
     private String facebook;
     private String instagram;
     private String tiktok;
+    private String youtube;
 }
