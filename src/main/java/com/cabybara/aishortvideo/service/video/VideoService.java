@@ -63,4 +63,11 @@ public interface VideoService {
     public void updateTitle(Long videoId, UpdateTitleRequestDTO request);
 
     public void deleteVideo(Long videoId);
+
+    // ADMIN
+    public long countCreatedVideoToday();
+
+    public long countCreatedTag();
+
+    public PageResponseDetail<?> getAllTags(int pageNo, int pageSize);
 }

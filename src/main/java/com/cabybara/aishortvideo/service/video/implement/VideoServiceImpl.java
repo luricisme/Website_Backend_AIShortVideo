@@ -395,6 +395,36 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.deleteById(videoId);
     }
 
+    // ADMIN
+    @Override
+    public long countCreatedVideoToday() {
+        return videoRepository.countCreatedVideoToday();
+    }
+
+    @Override
+    public long countCreatedTag() {
+        return videoTagsRepository.countCreatedTag();
+    }
+
+    @Override
+    public PageResponseDetail<?> getAllTags(int pageNo, int pageSize) {
+        int page = 0;
+        if (pageNo > 0) {
+            page = pageNo - 1;
+        }
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<GetAllTagResponseDTO> tags = videoTagsRepository.getAllTags(pageable);
+        List<GetAllTagResponseDTO> tagDTOs = tags.getContent();
+
+        return PageResponseDetail.builder()
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPage(tags.getTotalPages())
+                .totalElements(tags.getTotalElements())
+                .items(tagDTOs)
+                .build();
+    }
+
     private Video getVideoById(Long videoId) {
         return videoRepository.findById(videoId).orElseThrow(() -> new ResourceNotFoundException("Video not found"));
     }

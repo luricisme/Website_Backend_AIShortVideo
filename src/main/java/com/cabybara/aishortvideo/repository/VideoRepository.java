@@ -86,6 +86,17 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             """)
     Page<Video> findMyLikedVideos(@Param("userId") Long userId, Pageable pageable);
 
+
+    @Query(value = """
+                SELECT COUNT(*) 
+                FROM Video AS v
+                WHERE v.status = 'PUBLISHED'
+                  AND EXTRACT(DAY FROM v.createdAt) = EXTRACT(DAY FROM CURRENT_DATE)
+                  AND EXTRACT(MONTH FROM v.createdAt) = EXTRACT(MONTH FROM CURRENT_DATE)
+                  AND EXTRACT(YEAR FROM v.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE)
+            """)
+    long countCreatedVideoToday();
+
     Long countByUserId(Long userId);
 
     List<Video> findByUserId(Long userId);
