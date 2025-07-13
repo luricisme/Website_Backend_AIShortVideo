@@ -97,6 +97,12 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             """)
     long countCreatedVideoToday();
 
+    @Query("""
+                SELECT v
+                FROM Video v
+            """)
+    Page<Video> findAllVideo(Pageable pageable);
+
     Long countByUserId(Long userId);
 
     List<Video> findByUserId(Long userId);
