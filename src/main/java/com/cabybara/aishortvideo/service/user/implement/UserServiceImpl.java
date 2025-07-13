@@ -1,25 +1,19 @@
 package com.cabybara.aishortvideo.service.user.implement;
 
-import com.cabybara.aishortvideo.dto.auth.GoogleTokenResponseDTO;
-import com.cabybara.aishortvideo.dto.auth.GoogleUserInfoDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.*;
 import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokTokenResponseDTO;
 import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokUserDTO;
-import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokUserInfoDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
-import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
-import com.cabybara.aishortvideo.dto.user.UserDTO;
-import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
+import com.cabybara.aishortvideo.dto.user.*;
+import com.cabybara.aishortvideo.exception.InvalidParamsException;
 import com.cabybara.aishortvideo.exception.UserAlreadyExistsException;
 import com.cabybara.aishortvideo.exception.UserNotFoundException;
 import com.cabybara.aishortvideo.mapper.UserMapper;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserDetail;
-import com.cabybara.aishortvideo.model.UserFollower;
-import com.cabybara.aishortvideo.model.UserSocialAccount;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.UserRepository;
+import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.create_video.SaveFileService;
 import com.cabybara.aishortvideo.service.user.UserService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
@@ -42,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,6 +49,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserFollowerRepository userFollowerRepository;
     private final SaveFileService saveFileService;
+    private final VideoRepository videoRepository;
+    private final List<String> userSortProperties = List.of("id", "firstName", "lastName", "email", "status", "createdAt", "updatedAt");
 
     public UserServiceImpl(
             UserRepository userRepository,
@@ -61,14 +58,15 @@ public class UserServiceImpl implements UserService {
             PasswordEncoder passwordEncoder,
             UserMapper userMapper,
             UserFollowerRepository userFollowerRepository,
-            SaveFileService saveFileService
-    ) {
+            SaveFileService saveFileService,
+            VideoRepository videoRepository) {
         this.userRepository = userRepository;
         this.userSocialAccountService = userSocialAccountService;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.userFollowerRepository = userFollowerRepository;
         this.saveFileService = saveFileService;
+        this.videoRepository = videoRepository;
     }
 
     @Override
@@ -145,6 +143,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         userMapper.updateFromDto(updateUserDTO, existingUser);
+        existingUser.setUpdatedAt(LocalDateTime.now());
 
         User updatedUser = userRepository.save(existingUser);
 
@@ -239,8 +238,123 @@ public class UserServiceImpl implements UserService {
 
         String fileUrl = saveFileService.uploadAvatar(avatar, userId, "avatar");
         user.setAvatar(fileUrl);
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
         return fileUrl;
     }
+
+    @Override
+    public AdminUsersOverviewDTO getOverviewUsers() {
+        return userRepository.getOverviewUsers();
+    }
+
+    private boolean isValidSortProperty(String sortProp) {
+        return userSortProperties.contains(sortProp);
+    }
+
+    @Override
+    public PageResponseDetail<Object> getAllUser(String name, String status, String sortProp, String sortDirect, int page, int pageSize) {
+        if (page > 0) {
+            page = page - 1;
+        }
+
+        String sortBy;
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirect) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        if (sortProp != null) {
+            if (!isValidSortProperty(sortProp)) {
+                throw new InvalidParamsException("Invalid sort property. Allowed values are: " + String.join(", ", userSortProperties));
+            }
+            sortBy = sortProp;
+        } else {
+            sortBy = "id";
+        }
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(direction, sortBy));
+
+        UserStatus userStatus = null;
+        if (status != null && !"ALL".equalsIgnoreCase(status)) {
+            try {
+                userStatus = UserStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidParamsException("Invalid status value: '" + status + "'. Allowed values are: " + List.of(UserStatus.values()) + " or ALL.");
+            }
+        }
+
+        Page<User> userDTOPage;
+        if ((name != null && !name.isEmpty()) && userStatus != null) {
+            userDTOPage = userRepository.findByNameContainingIgnoreCaseAndStatus(name, userStatus, pageable);
+        } else if ((name != null && !name.isEmpty())) {
+            userDTOPage = userRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if (userStatus != null) {
+            userDTOPage = userRepository.findByStatus(userStatus, pageable);
+        } else {
+            userDTOPage = userRepository.findAll(pageable);
+        }
+
+        List<AdminUsersDTO> adminUsersDTOList = userDTOPage.stream()
+                .map(user -> {
+                    AdminUsersDTO dto = userMapper.toAdminUsersDTO(user);
+                    dto.setTotalVideo(videoRepository.countByUserId(dto.getId()));
+                    return dto;
+                })
+                .toList();
+
+        return PageResponseDetail.builder()
+                .pageNo(page)
+                .pageSize(pageSize)
+                .totalPage(userDTOPage.getTotalPages())
+                .totalElements(userDTOPage.getTotalElements())
+                .items(adminUsersDTOList)
+                .build();
+    }
+
+    @Override
+    public AdminUserGrowthDTO getGrowthMetrics(String periodType, Long numPeriod) {
+        Long totalUser = userRepository.count();
+        Long previousUserCount = 0L;
+        Long followingUserCount = 0L;
+        LocalDateTime periodStart = LocalDateTime.now();
+        LocalDateTime periodEnd = LocalDateTime.now();
+
+        periodStart = switch (periodType.toLowerCase()) {
+            case "day" -> LocalDateTime.now().minusDays(numPeriod).toLocalDate().atStartOfDay();
+            case "week" -> LocalDateTime.now().minusWeeks(numPeriod).toLocalDate().atStartOfDay();
+            case "month" -> LocalDateTime.now().minusMonths(numPeriod).toLocalDate().atStartOfDay();
+            default -> periodStart;
+        };
+
+        previousUserCount = userRepository.countByCreatedAtBefore(periodStart);
+        followingUserCount = totalUser - previousUserCount;
+        double growthPercent = previousUserCount == 0 ? 100.0
+                : ((double) (followingUserCount) / previousUserCount) * 100;
+
+        return AdminUserGrowthDTO.builder()
+                .totalUser(totalUser)
+                .periodStart(periodStart)
+                .periodEnd(periodEnd)
+                .previousUserCount(previousUserCount)
+                .followingUserCount(followingUserCount)
+                .growthPercent(growthPercent)
+                .build();
+    }
+
+    @Override
+    public RegisterResponseDTO addAdminUser(RegisterAdminDTO registerAdminDTO) {
+        Optional<User> existedUserOptional = userRepository.findByEmail(registerAdminDTO.getEmail());
+
+        if (existedUserOptional.isPresent()) {
+            User existedUser = existedUserOptional.get();
+            throw new UserAlreadyExistsException("User with email " + existedUser.getEmail() + " already exists.");
+        }
+
+        User user = userMapper.toUser(registerAdminDTO);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+
+        return userMapper.toRegisterResponseDTO(user);
+    }
+
+
 }

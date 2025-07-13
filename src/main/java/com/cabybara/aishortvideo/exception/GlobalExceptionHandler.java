@@ -177,4 +177,17 @@ public class GlobalExceptionHandler {
                 .timestamp(new Date(System.currentTimeMillis()))
                 .build();
     }
+
+    @ExceptionHandler(InvalidParamsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidParamsException(InvalidParamsException ex, WebRequest request) {
+        log.error("=================== handleInvalidParamsException ===================", ex);
+        return ErrorResponse.builder()
+                .path(request.getDescription(false).replace("uri=", ""))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .timestamp(new Date(System.currentTimeMillis()))
+                .build();
+    }
 }

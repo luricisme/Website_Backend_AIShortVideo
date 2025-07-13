@@ -1,9 +1,8 @@
-package com.cabybara.aishortvideo.service.youtube.implement;
+package com.cabybara.aishortvideo.service.publisedvideo;
 
 import com.cabybara.aishortvideo.exception.VideoNotFoundException;
 import com.cabybara.aishortvideo.model.PublishedVideo;
 import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
-import com.cabybara.aishortvideo.service.youtube.PublishedVideoService;
 import com.google.api.services.youtube.model.Video;
 import org.springframework.stereotype.Service;
 

@@ -10,13 +10,12 @@ import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
 import com.cabybara.aishortvideo.repository.UserFollowerRepository;
 import com.cabybara.aishortvideo.repository.VideoRepository;
 import com.cabybara.aishortvideo.service.dashboard.DashboardService;
-import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
+import com.cabybara.aishortvideo.service.publisedvideo.youtube.YoutubeApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

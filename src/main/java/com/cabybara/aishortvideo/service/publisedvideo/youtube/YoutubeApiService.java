@@ -1,4 +1,4 @@
-package com.cabybara.aishortvideo.service.youtube;
+package com.cabybara.aishortvideo.service.publisedvideo.youtube;
 
 import com.google.api.services.youtube.model.Video;
 
