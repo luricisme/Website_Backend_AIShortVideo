@@ -294,6 +294,7 @@ public class UserServiceImpl implements UserService {
         List<AdminUsersDTO> adminUsersDTOList = userDTOPage.stream()
                 .map(user -> {
                     AdminUsersDTO dto = userMapper.toAdminUsersDTO(user);
+                    dto.setStatus(user.getStatus());
                     dto.setTotalVideo(videoRepository.countByUserId(dto.getId()));
                     return dto;
                 })
