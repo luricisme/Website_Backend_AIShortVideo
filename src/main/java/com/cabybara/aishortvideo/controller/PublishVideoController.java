@@ -2,7 +2,7 @@ package com.cabybara.aishortvideo.controller;
 
 import com.cabybara.aishortvideo.dto.response.ResponseData;
 import com.cabybara.aishortvideo.dto.response.ResponseError;
-import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
+import com.cabybara.aishortvideo.service.publisedvideo.youtube.YoutubeApiService;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoStatistics;
 import io.swagger.v3.oas.annotations.tags.Tag;

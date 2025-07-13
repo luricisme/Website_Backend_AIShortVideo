@@ -175,25 +175,4 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(new ResponseData<>(HttpStatus.OK, "Successfully", isFollowing));
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseData.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
-            )
-    })
-    public ResponseEntity<ResponseData<String>> deleteUser(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ResponseData<>(HttpStatus.OK, "Successfully", null));
-    }
 }

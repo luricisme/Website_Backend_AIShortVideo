@@ -1,11 +1,10 @@
 package com.cabybara.aishortvideo.mapper;
 
+import com.cabybara.aishortvideo.dto.auth.RegisterAdminDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
 import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
 import com.cabybara.aishortvideo.dto.response.PageResponseDetail;
-import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
-import com.cabybara.aishortvideo.dto.user.UserDTO;
-import com.cabybara.aishortvideo.dto.user.UserFollowerDTO;
+import com.cabybara.aishortvideo.dto.user.*;
 import com.cabybara.aishortvideo.model.User;
 import com.cabybara.aishortvideo.model.UserFollower;
 import org.mapstruct.*;
@@ -22,10 +21,18 @@ public interface UserMapper {
     @Mapping(target = "status", expression = "java(com.cabybara.aishortvideo.utils.UserStatus.ACTIVE)")
     User toUser(RegisterRequestDTO userDTO);
 
+    @Mapping(target = "status", expression = "java(com.cabybara.aishortvideo.utils.UserStatus.ACTIVE)")
+    @Mapping(target = "role", expression = "java(com.cabybara.aishortvideo.utils.UserRole.ADMIN)")
+    User toUser(RegisterAdminDTO userDTO);
+
     @Mapping(source = "followers", target = "followers", qualifiedByName = "setUserFollowerToString")
     @Mapping(source = "followings", target = "followings", qualifiedByName = "setUserFollowingToString")
     @Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     UserDTO toUserDTO(User user);
+
+    @Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    AdminUsersDTO toAdminUsersDTO(User user);
 
     @Named("setUserFollowerToString")
     static PageResponseDetail<?> setUserFollowerToString(Set<UserFollower> followers) {

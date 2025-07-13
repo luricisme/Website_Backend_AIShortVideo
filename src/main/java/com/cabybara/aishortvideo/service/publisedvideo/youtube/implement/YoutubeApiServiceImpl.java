@@ -1,4 +1,4 @@
-package com.cabybara.aishortvideo.service.youtube.implement;
+package com.cabybara.aishortvideo.service.publisedvideo.youtube.implement;
 
 import com.cabybara.aishortvideo.exception.VideoNotFoundException;
 import com.cabybara.aishortvideo.mapper.PublishedVideoMapper;
@@ -7,8 +7,8 @@ import com.cabybara.aishortvideo.model.UserSocialAccount;
 import com.cabybara.aishortvideo.repository.PublishedVideoRepository;
 import com.cabybara.aishortvideo.service.auth.GoogleOauthService;
 import com.cabybara.aishortvideo.service.user.UserSocialAccountService;
-import com.cabybara.aishortvideo.service.youtube.PublishedVideoService;
-import com.cabybara.aishortvideo.service.youtube.YoutubeApiService;
+import com.cabybara.aishortvideo.service.publisedvideo.PublishedVideoService;
+import com.cabybara.aishortvideo.service.publisedvideo.youtube.YoutubeApiService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.CredentialRefreshListener;
 import com.google.api.client.auth.oauth2.TokenErrorResponse;
@@ -23,20 +23,15 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
