@@ -70,4 +70,6 @@ public interface VideoService {
     public long countCreatedTag();
 
     public PageResponseDetail<?> getAllTags(int pageNo, int pageSize);
+
+    public PageResponseDetail<?> findAllVideo(int pageNo, int pageSize);
 }

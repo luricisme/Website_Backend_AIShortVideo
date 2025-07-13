@@ -327,4 +327,14 @@ public class VideoController {
         log.info("Get all tags with number of videos");
         return new ResponseData<>(HttpStatus.OK.value(), "Get all tags with number of videos", videoService.getAllTags(pageNo, pageSize));
     }
+
+    @Operation(method = "GET", summary = "Get all videos", description = "Get all videos")
+    @GetMapping(value = "/all-videos")
+    public ResponseData<?> findAllVideo(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @Min(1) @RequestParam(defaultValue = "10", required = false) int pageSize
+    ) {
+        log.info("Get all videos");
+        return new ResponseData<>(HttpStatus.OK.value(), "Get all videos", videoService.findAllVideo(pageNo, pageSize));
+    }
 }

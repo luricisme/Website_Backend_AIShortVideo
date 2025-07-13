@@ -93,4 +93,10 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
                   AND EXTRACT(YEAR FROM v.createdAt) = EXTRACT(YEAR FROM CURRENT_DATE)
             """)
     long countCreatedVideoToday();
+
+    @Query("""
+                SELECT v
+                FROM Video v
+            """)
+    Page<Video> findAllVideo(Pageable pageable);
 }
