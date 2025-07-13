@@ -17,4 +17,8 @@ public interface UserFollowerRepository extends JpaRepository<UserFollower, User
 
     @Query("SELECT uf.followerUser FROM UserFollower uf WHERE uf.followingUser.id = :userId")
     Page<User> findAllUsersFollowingMe(@Param("userId") Long userId, Pageable pageable);
+
+    Long countByUserFollowerIdUserId(Long userId);
+
+    Long countByUserFollowerIdFollowerId(Long userId);
 }

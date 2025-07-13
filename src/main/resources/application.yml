@@ -29,6 +29,10 @@ spring:
             scope:
               - email
               - profile
+          tiktok:
+            client-id: ${OAUTH2_TIKTOK_CLIENT_ID}
+            client-secret: ${OAUTH2_TIKTOK_CLIENT_SECRET}
+            redirect-uri: "https://webhook.site/3e65ef61-34b9-4cfe-b8b0-1c6db83f1125"
 
   data:
     redis:

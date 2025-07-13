@@ -24,6 +24,7 @@ public interface UserMapper {
 
     @Mapping(source = "followers", target = "followers", qualifiedByName = "setUserFollowerToString")
     @Mapping(source = "followings", target = "followings", qualifiedByName = "setUserFollowingToString")
+    @Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     UserDTO toUserDTO(User user);
 
     @Named("setUserFollowerToString")
@@ -57,6 +58,7 @@ public interface UserMapper {
     }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "youtube", target = "youtube")
     void updateFromDto(UpdateUserDTO dto, @MappingTarget User entity);
 
     RegisterResponseDTO toRegisterResponseDTO(User user);

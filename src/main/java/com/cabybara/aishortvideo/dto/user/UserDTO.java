@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Data
@@ -29,4 +30,5 @@ public class UserDTO {
     private String youtube;
     private PageResponseDetail<?> followers;
     private PageResponseDetail<?> followings;
+    private String updatedAt;
 }

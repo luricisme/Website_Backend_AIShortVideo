@@ -1,9 +1,8 @@
 package com.cabybara.aishortvideo.service.user;
 
-import com.cabybara.aishortvideo.dto.auth.GoogleTokenResponseDTO;
-import com.cabybara.aishortvideo.dto.auth.GoogleUserInfoDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterRequestDTO;
-import com.cabybara.aishortvideo.dto.auth.RegisterResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.*;
+import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokTokenResponseDTO;
+import com.cabybara.aishortvideo.dto.auth.tiktok.TiktokUserDTO;
 import com.cabybara.aishortvideo.dto.user.UpdateUserDTO;
 import com.cabybara.aishortvideo.dto.user.UserDTO;
 import com.cabybara.aishortvideo.model.User;
@@ -22,6 +21,10 @@ public interface UserService extends UserDetailsService  {
     void deleteUser(Long id);
 
     User findOrCreateGoogleUser(GoogleUserInfoDTO userInfo, GoogleTokenResponseDTO tokenResponse);
+
+    User updateOrCreateTiktokToken(Long userId, TiktokTokenResponseDTO tokenResponse);
+
+    User createTiktokUser(Long userId, TiktokUserDTO userInfoDTO, TiktokTokenResponseDTO tokenResponseDTO);
 
     String updateAvatar(MultipartFile avatar, Long userId) throws IOException;
 }
