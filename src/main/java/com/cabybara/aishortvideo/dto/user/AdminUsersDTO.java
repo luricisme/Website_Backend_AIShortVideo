@@ -1,6 +1,7 @@
 package com.cabybara.aishortvideo.dto.user;
 
 import com.cabybara.aishortvideo.utils.UserRole;
+import com.cabybara.aishortvideo.utils.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,5 +26,6 @@ public class AdminUsersDTO {
     private String youtube;
     private String createdAt;
     private String updatedAt;
+    private UserStatus status;
     private Long totalVideo;
 }
