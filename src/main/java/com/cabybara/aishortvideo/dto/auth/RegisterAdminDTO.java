@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterAdminDTO {
+    private String firstName;
+    private String lastName;
     private String username;
     @Email
     private String email;
