@@ -145,6 +145,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         userMapper.updateFromDto(updateUserDTO, existingUser);
+        existingUser.setUpdatedAt(LocalDateTime.now());
 
         User updatedUser = userRepository.save(existingUser);
 
@@ -239,6 +240,7 @@ public class UserServiceImpl implements UserService {
 
         String fileUrl = saveFileService.uploadAvatar(avatar, userId, "avatar");
         user.setAvatar(fileUrl);
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
         return fileUrl;
