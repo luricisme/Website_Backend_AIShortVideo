@@ -36,8 +36,11 @@ spring:
 
   data:
     redis:
-      host: 88.222.212.40
-      port: 6378
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+
 
 data:
   api:
